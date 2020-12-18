@@ -97,6 +97,9 @@ async function nextSong(voiceConnection, guildID) {
     sm.data[guildID].playing = null;
     if (sm.data[guildID].queue.length > 0) {
         let nextSong = sm.data[guildID].queue.shift();
+        if (sm.data[guildID].loop) {
+            sm.data[guildID].queue.push(nextSong);
+        }
         sm.data[guildID].channel.send("", {embed: {
             color: config.commands.colors.ok,
             description: `**Now Playing** [${nextSong.title}](https://www.youtube.com/watch?v=${nextSong.id})`

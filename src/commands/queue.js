@@ -13,7 +13,7 @@ sm.command(["queue", "q"], (msg) => {
         if (pageNum > -1 && queuePages.length > pageNum) {
             msg.channel.send("", { embed: {
                 color: msg.colors.ok,
-                title: `In queue: ${pageData.length} song${(pageData.length !== 1)?"s":""} | Page: ${pageNum + 1}/${queuePages.length}`,
+                title: `In queue: ${pageData.length} song${(pageData.length !== 1)?"s":""} | Loop is ${(sm.data[msg.guild.id].loop ? "on" : "off")} | Page: ${pageNum + 1}/${queuePages.length}`,
                 description: `${queuePages[pageNum].join("\n")}`,
                 footer: { text: (queuePages.length > 1) ? `'${config.commands.prefix}queue [number]' to view more pages` : undefined }
             }});
