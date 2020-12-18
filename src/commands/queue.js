@@ -1,7 +1,7 @@
 // SimpleMusic - Command
 const sm = require("../index");
 
-sm.command(["queue"], (msg) => {
+sm.command(["queue", "q"], (msg) => {
     let queue = (sm.data[msg.guild.id]) ? sm.data[msg.guild.id].queue : [];
     if (queue.length > 0) {
         var pageNum = (msg.args[1] !== undefined && /\d+/.test(msg.args[1])) ? (parseInt(msg.args[1]) - 1) : 0;

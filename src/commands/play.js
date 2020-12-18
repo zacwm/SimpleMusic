@@ -44,10 +44,18 @@ sm.command(["play", "p"], (msg) => {
                     })
                     .catch(err => {
                         msg.channel.stopTyping();
-                        msg.channel.send("", {embed: {
-                            color: msg.colors.warn,
-                            description: `No results were found for that query...`
-                        }});
+                        if (err.code == 403) {
+                            msg.channel.send("", {embed: {
+                                color: msg.colors.warn,
+                                title: `Error from YouTube API`,
+                                description: err.message || "No details given"
+                            }});
+                        } else {
+                            msg.channel.send("", {embed: {
+                                color: msg.colors.warn,
+                                description: `No results were found for that query...`
+                            }});
+                        }
                     })
                 }
             } else {

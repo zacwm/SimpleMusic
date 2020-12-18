@@ -1,7 +1,7 @@
 // SimpleMusic - Command
 const sm = require("../index");
 
-sm.command(["playing", "current"], async (msg) => {
+sm.command(["playing", "nowplaying", "np", "current"], async (msg) => {
     let guildData = sm.data[msg.guild.id];
     if (guildData && guildData.playing) {
         if (guildData.statusMessage) {
