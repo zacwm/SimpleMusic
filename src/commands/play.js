@@ -27,8 +27,8 @@ sm.command(["play", "p"], (msg) => {
                                 sm.data[msg.guild.id].statusMessage = await msg.channel.send("", {embed: {
                                     color: msg.colors.ok,
                                     author: { name: "Now Playing" },
-                                    thumbnail: { url: `https://img.youtube.com/vi/${song.id}/maxresdefault.jpg` },
-                                    description: `[${song.title}](https://www.youtube.com/watch?v=${song.id})`
+                                    thumbnail: { url: song.thumbnail },
+                                    description: `[${song.title}](${song.url})`
                                 }});
                                 playSong(connection, song);
                             });
@@ -36,8 +36,8 @@ sm.command(["play", "p"], (msg) => {
                             msg.channel.send("", {embed: {
                                 color: msg.colors.ok,
                                 author: { name: "Added to queue" },
-                                thumbnail: { url: `https://img.youtube.com/vi/${res[0].id}/maxresdefault.jpg` },
-                                description: `[${res[0].title}](https://www.youtube.com/watch?v=${res[0].id})`
+                                thumbnail: { url: res[0].thumbnail },
+                                description: `[${res[0].title}](${res[0].url})`
                             }});
                         }
                         msg.channel.stopTyping();
@@ -78,11 +78,24 @@ async function playSong(voiceConnection, song) {
     if (!voiceConnection || !song) return;
     let guild = voiceConnection.channel.guild;
     if (sm.data[guild.id].disconnect) clearTimeout(sm.data[guild.id].disconnect);
-    let dispatcher = voiceConnection.play(await ytdl(`https://www.youtube.com/watch?v=${song.id}`, { quality: "lowestaudio", filter: "audioonly" }));
+    let dispatcher;
+    if (song.platform == 'youtube') {
+        dispatcher = voiceConnection.play(ytdl(song.url, { quality: "lowestaudio", filter: "audioonly" }));
+    } else {
+        sm.data[guild.id].statusMessage.channel.send("", {embed: {
+            color: config.commands.colors.warn,
+            title: "Internal bot error",
+            description: "Source not supported"
+        }});
+        sm.data[guild.id].statusMessage.delete();
+        sm.log("error", `User tryed to play song ${song.url} from ${song.platform}, but it's not currently supported`);
+        setImmediate(nextSong, voiceConnection, guild.id);
+        return;
+    }
     dispatcher.setVolume(config.music.volume / 100);
     sm.data[guild.id].playing = { dispatcher, song }
     sm.data[guild.id].voiceConnection = voiceConnection;
-    sm.log("music", `Playing YT:${song.id} in ${guild.name} (${guild.id})`);
+    sm.log("music", `Playing YT:${song.url} in ${guild.name} (${guild.id})`);
 
     dispatcher.on("finish", () => {
         sm.data[guild.id].statusMessage.delete();
@@ -154,7 +167,7 @@ let getSongInfo = (videoid) => {
         let videoLength = Math.round(parseInt(videoInfo.videoDetails.lengthSeconds) / 60);
         if (videoInfo.videoDetails.isLiveContent) return reject(3);
         else if (videoLength <= config.music.maxSongTime) {
-            resolve({ title: videoInfo.videoDetails.title, id: videoInfo.videoDetails.videoId, duration: videoInfo.videoDetails.lengthSeconds });
+            resolve({ title: videoInfo.videoDetails.title, url: `https://www.youtube.com/watch?v=${videoInfo.videoDetails.videoId}`, duration: videoInfo.videoDetails.lengthSeconds, thumbnail: `https://img.youtube.com/vi/${videoInfo.videoDetails.videoId}/maxresdefault.jpg`, platform:'youtube'});
         } else return reject({type: 2, data: videoLength});
     });
 }

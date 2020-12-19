@@ -7,7 +7,7 @@ sm.command(["queue", "q"], (msg) => {
         var pageNum = (msg.args[1] !== undefined && /\d+/.test(msg.args[1])) ? (parseInt(msg.args[1]) - 1) : 0;
         var pageData = [];
         sm.data[msg.guild.id].queue.forEach((song, index) => {
-            pageData.push(`**${index + 1})** [${song.title}](https://www.youtube.com/watch?v=${song.id}}) | <@${song.requester}>`);
+            pageData.push(`**${index + 1})** [${song.title}](${song.url}}) | <@${song.requester}>`);
         });
         var queuePages = Array(Math.ceil(pageData.length / 10)).fill().map((_, index) => index * 10).map(begin => pageData.slice(begin, begin + 10));
         if (pageNum > -1 && queuePages.length > pageNum) {

@@ -41,6 +41,9 @@ function log(type, message) {
         case "music":
             type = chalk.green.bold("music".padStart(7, " "));
             break;
+        case "error":
+            type = chalk.red.bold("ERROR".padStart(7, " "));
+            break;
         default:
             type = type.padStart(7, " ");
     }
