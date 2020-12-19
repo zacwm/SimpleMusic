@@ -2,6 +2,7 @@
 const config = require("../config");
 const ytdl = require("ytdl-core");
 const youtubenode = require("youtube-node");
+const youtubedl = require('youtube-dl');
 const sm = require("../index");
 const ytnode = new youtubenode();
 ytnode.setKey(config.credentials.youtube);
@@ -81,9 +82,11 @@ async function playSong(voiceConnection, song) {
     let dispatcher;
     if (song.platform == 'youtube') {
         dispatcher = voiceConnection.play(ytdl(song.url, { quality: "lowestaudio", filter: "audioonly" }));
+    } else if (song.platform == 'soundcloud') {
+        dispatcher = voiceConnection.play(youtubedl(song.url, ['-f bestaudio']));
     } else {
         sm.data[guild.id].statusMessage.channel.send("", {embed: {
-            color: config.commands.colors.warn,
+            color: config.commands.colors.error,
             title: "Internal bot error",
             description: "Source not supported"
         }});
@@ -115,7 +118,7 @@ async function nextSong(voiceConnection, guildID) {
         }
         sm.data[guildID].channel.send("", {embed: {
             color: config.commands.colors.ok,
-            description: `**Now Playing** [${nextSong.title}](https://www.youtube.com/watch?v=${nextSong.id})`
+            description: `**Now Playing** [${nextSong.title}](${nextSong.url})`
         }}).then(m => {
             sm.data[guildID].statusMessage = m;
         });
@@ -136,6 +139,15 @@ let getQuery = (query, opts) => {
             let songData = await getSongInfo(videoID);
             songs.push({ ...opts, ...songData });
             resolve(songs);
+        } 
+        //- If SoundCloud Track
+        else if (/https{0,1}:\/\/w{0,3}\.*soundcloud\.com\/([A-Za-z0-9_-]+)\/([A-Za-z0-9_-]+)[^< ]*/i.test(query)) {
+            youtubedl.getInfo(query, [], function(err, info) {
+                if (err) throw err
+                
+                songs.push({ ...opts, title: info.title, url: query, duration: info._duration_raw, thumbnail: info.thumbnail, platform:'soundcloud'});
+            resolve(songs);
+            });
         }
         //- If search query
         else {
