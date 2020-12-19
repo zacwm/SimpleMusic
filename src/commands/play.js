@@ -95,7 +95,7 @@ async function playSong(voiceConnection, song) {
     dispatcher.setVolume(config.music.volume / 100);
     sm.data[guild.id].playing = { dispatcher, song }
     sm.data[guild.id].voiceConnection = voiceConnection;
-    sm.log("music", `Playing YT:${song.url} in ${guild.name} (${guild.id})`);
+    sm.log("music", `Playing ${song.platform}:${song.url} in ${guild.name} (${guild.id})`);
 
     dispatcher.on("finish", () => {
         sm.data[guild.id].statusMessage.delete();
