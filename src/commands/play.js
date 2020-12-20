@@ -51,10 +51,25 @@ sm.command(["play", "p"], (msg) => {
                                 title: `Error from YouTube API`,
                                 description: err.message || "No details given"
                             }});
-                        } else {
+                        } else if (err == 1) {
                             msg.channel.send("", {embed: {
                                 color: msg.colors.warn,
                                 description: `No results were found for that query...`
+                            }});
+                        } else if (err == 2) {
+                            msg.channel.send("", {embed: {
+                                color: msg.colors.warn,
+                                description: `The video selected is too long to be played`
+                            }});
+                        } else if (err == 3) {
+                            msg.channel.send("", {embed: {
+                                color: msg.colors.warn,
+                                description: `The bot is not able to play livestreams`
+                            }});
+                        } else {
+                            msg.channel.send("", {embed: {
+                                color: msg.colors.warn,
+                                description: `The input given is not valid`
                             }});
                         }
                     })
@@ -134,17 +149,22 @@ let getQuery = (query, opts) => {
         //- If YouTube video
         if (/(?:youtube.[a-z]+\/[a-z\?\&]*v[/|=]|youtu.be\/)([0-9a-zA-Z-_]+)/i.test(query)) {
             let videoID = query.match(/(?:youtube.[a-z]+\/[a-z\?\&]*v[/|=]|youtu.be\/)([0-9a-zA-Z-_]+)/i)[0].split("/")[1].replace(/watch\?v=/i, "");
-            let songData = await getSongInfo(videoID);
-            songs.push({ ...opts, ...songData });
-            resolve(songs);
+            getSongInfo(videoID).then(songData => {
+                songs.push({ ...opts, ...songData });
+                resolve(songs);
+            }).catch(e => {
+                reject(e);
+            });
+            
         } 
         //- If SoundCloud Track
         else if (/https{0,1}:\/\/w{0,3}\.*soundcloud\.com\/([A-Za-z0-9_-]+)\/([A-Za-z0-9_-]+)[^< ]*/i.test(query)) {
             youtubedl.getInfo(query, [], function(err, info) {
-                if (err) throw err
-                
-                songs.push({ ...opts, title: info.title, url: query, duration: info._duration_raw, thumbnail: info.thumbnail, platform:'soundcloud'});
-            resolve(songs);
+                if (err) reject(4);
+                else {
+                    songs.push({ ...opts, title: info.title, url: query, duration: info._duration_raw, thumbnail: info.thumbnail, platform:'soundcloud'});
+                    resolve(songs);
+                }
             });
         }
         //- If search query
@@ -173,11 +193,14 @@ let getQuery = (query, opts) => {
 //= For getting single songs
 let getSongInfo = (videoid) => {
     return new Promise(async (resolve, reject) => {
-        let videoInfo = await ytdl.getInfo(`https://www.youtube.com/watch?v=${videoid}`);
-        let videoLength = Math.round(parseInt(videoInfo.videoDetails.lengthSeconds) / 60);
-        if (videoInfo.videoDetails.isLiveContent) return reject(3);
-        else if (videoLength <= config.music.maxSongTime) {
-            resolve({ title: videoInfo.videoDetails.title, url: `https://www.youtube.com/watch?v=${videoInfo.videoDetails.videoId}`, duration: videoInfo.videoDetails.lengthSeconds, thumbnail: `https://img.youtube.com/vi/${videoInfo.videoDetails.videoId}/maxresdefault.jpg`, platform:'youtube'});
-        } else return reject({type: 2, data: videoLength});
+        ytdl.getInfo(`https://www.youtube.com/watch?v=${videoid}`).then(videoInfo => {
+            let videoLength = Math.round(parseInt(videoInfo.videoDetails.lengthSeconds) / 60);
+            if (videoInfo.videoDetails.isLiveContent) return reject(3);
+            else if (videoLength <= config.music.maxSongTime) {
+                resolve({ title: videoInfo.videoDetails.title, url: `https://www.youtube.com/watch?v=${videoInfo.videoDetails.videoId}`, duration: videoInfo.videoDetails.lengthSeconds, thumbnail: `https://img.youtube.com/vi/${videoInfo.videoDetails.videoId}/maxresdefault.jpg`, platform:'youtube'});
+            } else return reject({type: 2, data: videoLength});
+        }).catch(e => {
+            reject(1);
+        });
     });
 }
