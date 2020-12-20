@@ -6,16 +6,22 @@ A simple & *kinda configurable* Discord.js music bot!
 [required], (optional) | All commands start with the configued prefix in `config.js`.
 
 ### `!play [query]` / `!p [query]`
-Will queue the query or play immediately if it is the first song in the queue. A query can be a search term and will grab the first result or a YouTube video URL.
+Will queue the query or play immediately if it is the first song in the queue. A query can be a search term and will grab the first result or a YouTube video URL or a SoundCloud URL.
 
 ### `!skip` / `!s`
 Will skip the current playing song for the next song in queue.
 
-### `!playing` / `!current`
+### `!delete [n|last]`
+Will delete from the queue the song in the `n` position or the last one if `last` is given as an argument.
+
+### `!playing` / `!nowplaying` / `!np` / `!current` / `!now`
 Will return with information such as the time played, song length, what channel it is playing in and who requested it for the current playing song.
 
-### `!queue (page number)`
+### `!queue (page number)` / `!q (page number)`
 Will list the upcoming queued songs for the voice channel. If there is more than 10, a page number can be specified to list more.
+
+### `!loop`
+Will toggle loop.
 
 ### `!stop` / `!leave` / `!disconnect`
 Will disconnect from the voice channel and remove all songs from the queue.
