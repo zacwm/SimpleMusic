@@ -8,7 +8,7 @@ ytnode.setKey(config.credentials.youtube);
 
 exports.nextSong = nextSong;
 
-sm.command(["play", "p"], (msg) => {
+sm.command(["play", "p", "search"], (msg) => {
     let query = msg.content.substring(msg.args[0].length + 1);
     if (query) { // If user is requesting to queue a song.
         if (msg.member.voice.channel) { // Check if user is in a voice channel.
