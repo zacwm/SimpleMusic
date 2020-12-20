@@ -98,6 +98,7 @@ async function playSong(voiceConnection, song) {
     dispatcher.setVolume(config.music.volume / 100);
     sm.data[guild.id].playing = { dispatcher, song }
     sm.data[guild.id].voiceConnection = voiceConnection;
+    if (sm.data[guild.id].loop) sm.data[guild.id].queue.push(song);
     sm.log("music", `Playing ${song.platform}:${song.url} in ${guild.name} (${guild.id})`);
 
     dispatcher.on("finish", () => {
@@ -113,9 +114,6 @@ async function nextSong(voiceConnection, guildID) {
     sm.data[guildID].playing = null;
     if (sm.data[guildID].queue.length > 0) {
         let nextSong = sm.data[guildID].queue.shift();
-        if (sm.data[guildID].loop) {
-            sm.data[guildID].queue.push(nextSong);
-        }
         sm.data[guildID].channel.send("", {embed: {
             color: config.commands.colors.ok,
             description: `**Now Playing** [${nextSong.title}](${nextSong.url})`
