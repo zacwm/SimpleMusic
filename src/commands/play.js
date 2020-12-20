@@ -1,6 +1,5 @@
 // SimpleMusic - Command
 const config = require("../config");
-const ytdl = require("ytdl-core");
 const youtubenode = require("youtube-node");
 const youtubedl = require('youtube-dl');
 const sm = require("../index");
@@ -96,7 +95,7 @@ async function playSong(voiceConnection, song) {
     if (sm.data[guild.id].disconnect) clearTimeout(sm.data[guild.id].disconnect);
     let dispatcher;
     if (song.platform == 'youtube') {
-        dispatcher = voiceConnection.play(ytdl(song.url, { quality: "lowestaudio", filter: "audioonly" }));
+        dispatcher = voiceConnection.play(youtubedl(song.url, ['-f bestaudio']));
     } else if (song.platform == 'soundcloud') {
         dispatcher = voiceConnection.play(youtubedl(song.url, ['-f bestaudio']));
     } else {
@@ -149,8 +148,8 @@ let getQuery = (query, opts) => {
         //- If YouTube video
         if (/(?:youtube.[a-z]+\/[a-z\?\&]*v[/|=]|youtu.be\/)([0-9a-zA-Z-_]+)/i.test(query)) {
             let videoID = query.match(/(?:youtube.[a-z]+\/[a-z\?\&]*v[/|=]|youtu.be\/)([0-9a-zA-Z-_]+)/i)[0].split("/")[1].replace(/watch\?v=/i, "");
-            getSongInfo(videoID).then(songData => {
-                songs.push({ ...opts, ...songData });
+            getSongInfo(`https://www.youtube.com/watch?v=${videoID}`).then(songData => {
+                songs.push({ ...opts, ...songData, platform:'youtube'});
                 resolve(songs);
             }).catch(e => {
                 reject(e);
@@ -159,12 +158,12 @@ let getQuery = (query, opts) => {
         } 
         //- If SoundCloud Track
         else if (/https{0,1}:\/\/w{0,3}\.*soundcloud\.com\/([A-Za-z0-9_-]+)\/([A-Za-z0-9_-]+)[^< ]*/i.test(query)) {
-            youtubedl.getInfo(query, [], function(err, info) {
-                if (err) reject(4);
-                else {
-                    songs.push({ ...opts, title: info.title, url: query, duration: info._duration_raw, thumbnail: info.thumbnail, platform:'soundcloud'});
-                    resolve(songs);
-                }
+            getSongInfo(query)
+            .then(songData => {
+                songs.push({ ...opts, ...songData, platform:'soundcloud'});
+                resolve(songs);
+            }).catch(err => {
+                reject(err);
             });
         }
         //- If search query
@@ -174,9 +173,9 @@ let getQuery = (query, opts) => {
                 let resultFilter = result.items.filter(item => item.id.kind == "youtube#video");
                 if (resultFilter.length > 0) {
                     function checkVideos(pos) {
-                        getSongInfo(resultFilter[pos].id.videoId)
+                        getSongInfo(`https://www.youtube.com/watch?v=${resultFilter[pos].id.videoId}`)
                         .then(songData => {
-                            songs.push({ ...opts, ...songData });
+                            songs.push({ ...opts, ...songData, platform:'youtube'});
                             resolve(songs);
                         }).catch(err => {
                             if (pos + 1 == resultFilter.length) return reject(2);
@@ -191,16 +190,15 @@ let getQuery = (query, opts) => {
 }
 
 //= For getting single songs
-let getSongInfo = (videoid) => {
+let getSongInfo = (query) => {
     return new Promise(async (resolve, reject) => {
-        ytdl.getInfo(`https://www.youtube.com/watch?v=${videoid}`).then(videoInfo => {
-            let videoLength = Math.round(parseInt(videoInfo.videoDetails.lengthSeconds) / 60);
-            if (videoInfo.videoDetails.isLiveContent) return reject(3);
-            else if (videoLength <= config.music.maxSongTime) {
-                resolve({ title: videoInfo.videoDetails.title, url: `https://www.youtube.com/watch?v=${videoInfo.videoDetails.videoId}`, duration: videoInfo.videoDetails.lengthSeconds, thumbnail: `https://img.youtube.com/vi/${videoInfo.videoDetails.videoId}/maxresdefault.jpg`, platform:'youtube'});
-            } else return reject({type: 2, data: videoLength});
-        }).catch(e => {
-            reject(1);
+        youtubedl.getInfo(query, [], function(err, info) {
+            //console.log(info);
+            if (err) reject(4);
+            else if (info.is_live) reject(3);
+            else if (parseInt(info._duration_raw/60) <= config.music.maxSongTime) {
+                resolve({title: info.title, url: query, duration: info._duration_raw, thumbnail: info.thumbnail});
+            } else return reject({type: 2, data: parseInt(info._duration_raw/60)});
         });
     });
 }

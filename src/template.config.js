@@ -21,7 +21,7 @@ module.exports = {
     },
 
     music: {
-        // Max Song Time = The maximum allowed time from a song to be added to the queue.
+        // Max Song Time = The maximum allowed time in minutes from a song to be added to the queue.
         maxSongTime: 3600,
         // Volume = The volume to use to play music, Can only range from 0 - 200.
         volume: 25,
