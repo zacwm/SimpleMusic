@@ -1,7 +1,7 @@
 // SimpleMusic - Command
 const sm = require("../index");
 
-sm.command(["playing", "nowplaying", "np", "current"], async (msg) => {
+sm.command(["playing", "nowplaying", "np", "current", "now"], async (msg) => {
     let guildData = sm.data[msg.guild.id];
     if (guildData && guildData.playing) {
         if (guildData.statusMessage) {
@@ -23,10 +23,10 @@ sm.command(["playing", "nowplaying", "np", "current"], async (msg) => {
         }
         sm.data[msg.guild.id].statusMessage = await msg.channel.send("", {embed: {
             color: msg.colors.ok,
-            thumbnail: { url: `https://img.youtube.com/vi/${guildData.playing.song.id}/maxresdefault.jpg` },
+            thumbnail: { url: guildData.playing.song.thumbnail },
             title: guildData.playing.song.title,
-            url: `https://www.youtube.com/watch?v=${guildData.playing.song.id}`,
-            description: `${formatTime(playedTime)} [${"■".repeat(playedPercent/5)}${"□".repeat(20 - (playedPercent/5))}] ${formatTime(totalTime)} (${playedPercent}%)\n`,
+            url: guildData.playing.song.url,
+            description: `${formatTime(playedTime)} [${"■".repeat(playedPercent/5)}${"□".repeat(20 - (playedPercent/5))}] ${formatTime(totalTime)} (${playedPercent}%)${(guildData.loop ? "🔄" : "")}\n`,
             fields: [
                 {
                     name: "Requested by",
@@ -39,7 +39,7 @@ sm.command(["playing", "nowplaying", "np", "current"], async (msg) => {
                     inline: true
                 }
             ]
-        }})
+        }});
     } else {
         msg.channel.send("", {embed: {
             color: msg.colors.ok,
