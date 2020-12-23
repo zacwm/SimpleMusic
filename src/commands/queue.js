@@ -1,19 +1,20 @@
 // SimpleMusic - Command
 const sm = require("../index");
+const player = require("./player");
 
 sm.command(["queue", "q"], (msg) => {
-    let queue = (sm.data[msg.guild.id]) ? sm.data[msg.guild.id].queue : [];
+    let queue = (player.players[msg.guild.id]) ? player.players[msg.guild.id].queue : [];
     if (queue.length > 0) {
         var pageNum = (msg.args[1] !== undefined && /\d+/.test(msg.args[1])) ? (parseInt(msg.args[1]) - 1) : 0;
         var pageData = [];
-        sm.data[msg.guild.id].queue.forEach((song, index) => {
+        player.players[msg.guild.id].queue.forEach((song, index) => {
             pageData.push(`**${index + 1})** [${song.title}](${song.url}) | <@${song.requester}>`);
         });
         var queuePages = Array(Math.ceil(pageData.length / 10)).fill().map((_, index) => index * 10).map(begin => pageData.slice(begin, begin + 10));
         if (pageNum > -1 && queuePages.length > pageNum) {
             msg.channel.send("", { embed: {
                 color: msg.colors.ok,
-                title: `In queue: ${pageData.length} song${(pageData.length !== 1)?"s":""} | Loop is ${(sm.data[msg.guild.id].loop ? "on" : "off")} | Page: ${pageNum + 1}/${queuePages.length}`,
+                title: `In queue: ${pageData.length} song${(pageData.length !== 1)?"s":""} | Loop is ${(player.players[msg.guild.id].loop ? "on" : "off")} | Page: ${pageNum + 1}/${queuePages.length}`,
                 description: `${queuePages[pageNum].join("\n")}`,
                 footer: { text: (queuePages.length > 1) ? `'${config.commands.prefix}queue [number]' to view more pages` : undefined }
             }});

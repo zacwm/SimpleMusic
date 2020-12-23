@@ -1,8 +1,9 @@
 // SimpleMusic - Command
 const sm = require("../index");
+const player = require("./player");
 
 sm.command(["stop", "disconnect", "leave"], (msg) => {
-    let cmdGuild = sm.data[msg.guild.id];
+    let cmdGuild = player.players[msg.guild.id];
     if (cmdGuild && cmdGuild.voiceConnection) cmdGuild.voiceConnection.disconnect();
     msg.react("👍");
 });
