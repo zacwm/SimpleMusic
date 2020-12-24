@@ -36,7 +36,7 @@ exports.play = async (tracks, textChannel, guildId, voiceChannel) => {
                 resolve();
             });
         } else if (tracks.length == 1) {
-            await textChannel.send("", {embed: {
+            player.players[guildId].statusMessage = await textChannel.send("", {embed: {
                 color: config.commands.colors.ok,
                 author: { name: "Added to queue" },
                 thumbnail: { url: tracks[0].thumbnail },
@@ -71,7 +71,6 @@ exports.playSong = async (voiceConnection, song) => {
     dispatcher.setVolume(config.music.volume / 100);
     player.players[guild.id].playing = { dispatcher, song }
     player.players[guild.id].voiceConnection = voiceConnection;
-    if (player.players[guild.id].loop) player.players[guild.id].queue.push(song);
     sm.log("music", `Playing ${song.platform}:${song.url} in ${guild.name} (${guild.id})`);
 
     dispatcher.on("finish", () => {
@@ -84,6 +83,7 @@ exports.playSong = async (voiceConnection, song) => {
 
 //-  Play next song in queue
 exports.nextSong = async (voiceConnection, guildID) => {
+    if (player.players[guildID].loop) player.players[guildID].queue.push(player.players[guildID].playing.song);
     player.players[guildID].playing = null;
     if (player.players[guildID].queue.length > 0) {
         let nextSong = player.players[guildID].queue.shift();
