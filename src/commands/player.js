@@ -55,8 +55,8 @@ exports.playSong = async (voiceConnection, song) => {
     if (player.players[guild.id].disconnect) clearTimeout(player.players[guild.id].disconnect);
     let dispatcher;
     if (sources[song.platform]) {
-        if (!song.duration) song = { ...song,...await sources[song.platform].getInfo(song.url) };
-        dispatcher = voiceConnection.play(sources[song.platform].getStream(song.url));
+        if (!song.duration) song = { ...song,...await sources[song.platform].getInfo(song.url).then(r => r[0]) };
+        dispatcher = voiceConnection.play(await sources[song.platform].getStream(song.url));
     } else {
         player.players[guild.id].statusMessage.channel.send("", {embed: {
             color: config.commands.colors.error,
@@ -109,8 +109,10 @@ exports.getQuery = (query, opts) => {
 
         for (i = 0; i < sourcesNames.length; i++) {
             if (sources[sourcesNames[i]].url.test(query)) {
-                sources[sourcesNames[i]].getInfo(query).then(songData => {
-                    songs.push({ ...opts, ...songData, platform:sourcesNames[i]});
+                sources[sourcesNames[i]].getInfo(query).then(songsData => {
+                    songsData.forEach(songData => {
+                        songs.push({ ...opts, ...songData, platform:sourcesNames[i]});
+                    });
                     return resolve(songs);
                 }).catch(e => {
                     reject(e);

@@ -1,24 +1,36 @@
 // SimpleMusic - Source
-const youtubedl = require('youtube-dl');
+const config = require("../../config");
+
 const fetch = require('node-fetch');
 
 exports.alias = ['soundcloud', 'sc'];
 
 exports.url = /https{0,1}:\/\/w{0,3}\.*soundcloud\.com\/([A-Za-z0-9_-]+)\/([A-Za-z0-9_-]+)[^< ]*/i;
 
-exports.getStream = (url) => {
-    return youtubedl(url, ['-f bestaudio']);
+exports.getStream = async (url) => {
+    return await exports.getInfo(url).then(res => res.media.transcodings[0].url);
 }
 
 exports.getInfo = (url) => {
     return new Promise(async (resolve, reject) => {
-        youtubedl.getInfo(url, [], function(err, info) {
-            if (err) reject(4);
-            else if (info.is_live) reject(3);
-            else if (parseInt(info._duration_raw/60) <= config.music.maxSongTime) {
-                resolve({title: info.title, url: url, duration: info._duration_raw, thumbnail: info.thumbnail});
-            } else return reject({type: 2, data: parseInt(info._duration_raw/60)});
+        let info = await fetch(`https://api-v2.soundcloud.com/resolve?url=${encodeURI(url)}&client_id=${await getClientId()}`).then(res => res.json()).catch(err => reject(err));
+
+        if (info.error) {
+            reject();
+        } else {
+            resolve([{title: info.title, url: url, author:info.user.username, authorUrl:info.user.permalink_url, thumbnail:info.artwork_url, duration:info.duration}]);
+        }
+    });
+}
+
+exports.search = (query, n) => {
+    return new Promise(async (resolve) => {
+        let result = await fetch(`https://api-v2.soundcloud.com/search/tracks?q=${query}&client_id=${await getClientId()}&limit=${n || 20}&offset=0&linked_partitioning=1&app_locale=en`).then(res => res.json());
+        let resultParsed = [];
+        result.collection.forEach(song => {
+            resultParsed.push({title: info.title, url: url, author:info.user.username, authorUrl:info.user.permalink_url, thumbnail:info.artwork_url, duration:song.duration});
         });
+        resolve(resultParsed);
     });
 }
 
@@ -46,16 +58,5 @@ async function getClientId() {
             });
         }
         resolve(clientId);
-    });
-}
-
-exports.search = (query, n) => {
-    return new Promise(async (resolve) => {
-        let result = await fetch(`https://api-v2.soundcloud.com/search/tracks?q=${query}&client_id=${await getClientId()}&limit=${n || 20}&offset=0&linked_partitioning=1&app_locale=en`).then(res => res.json());
-        let resultParsed = [];
-        result.collection.forEach(song => {
-            resultParsed.push({title: song.title, url: song.permalink_url, author: song.user.author, thumbnail:song.artwork_url, duration:song.duration});
-        });
-        resolve(resultParsed);
     });
 }

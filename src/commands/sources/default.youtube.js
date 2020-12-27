@@ -2,7 +2,6 @@
 const config = require("../../config");
 
 const youtubenode = require("youtube-node");
-const youtubedl = require('youtube-dl');
 const ytdl = require('ytdl-core');
 const ytnode = new youtubenode();
 ytnode.setKey(config.credentials.youtube);
@@ -17,12 +16,13 @@ exports.getStream = (url) => {
 
 exports.getInfo = (url) => {
     return new Promise(async (resolve, reject) => {
-        youtubedl.getInfo(url, [], function(err, info) {
-            if (err) reject();
-            else if (info.is_live) reject({message: "Unable to play live streams"});
+        ytdl.getInfo(url).then(info => {
+            if (info.is_live) reject({message: "Unable to play live streams"});
             else {
-                resolve({title: info.title, url: url, duration: info._duration_raw, thumbnail: info.thumbnail});
+                resolve([{title: info.videoDetails.title, url: url, duration: info.videoDetails.lengthSeconds, thumbnail: `https://img.youtube.com/vi/${info.videoDetails.videoId}/maxresdefault.jpg`}]);
             }
+        }).catch(e => {
+            reject(err);
         });
     });
 }
