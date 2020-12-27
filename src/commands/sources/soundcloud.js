@@ -8,7 +8,15 @@ exports.alias = ['soundcloud', 'sc'];
 exports.url = /https{0,1}:\/\/w{0,3}\.*soundcloud\.com\/([A-Za-z0-9_-]+)\/([A-Za-z0-9_-]+)[^< ]*/i;
 
 exports.getStream = async (url) => {
-    return await exports.getInfo(url).then(res => res.media.transcodings[0].url);
+    return new Promise(async (resolve, reject) => {
+        let info = await fetch(`https://api-v2.soundcloud.com/resolve?url=${encodeURI(url)}&client_id=${await getClientId()}`).then(res => res.json()).catch(err => reject(err));
+
+        if (info.error) {
+            reject();
+        } else {
+            resolve(await fetch(`${info.media.transcodings[0].url}?client_id=${await getClientId()}`).then(res => res.json()).then(json => json.url).catch(err => reject(err)));
+        }
+    });
 }
 
 exports.getInfo = (url) => {
@@ -18,7 +26,7 @@ exports.getInfo = (url) => {
         if (info.error) {
             reject();
         } else {
-            resolve([{title: info.title, url: url, author:info.user.username, authorUrl:info.user.permalink_url, thumbnail:info.artwork_url, duration:info.duration}]);
+            resolve([{title: info.title, url: info.permalink_url, author:info.user.username, authorUrl:info.user.permalink_url, thumbnail:info.artwork_url, duration:parseInt(info.duration/1000)}]);
         }
     });
 }
@@ -27,8 +35,8 @@ exports.search = (query, n) => {
     return new Promise(async (resolve) => {
         let result = await fetch(`https://api-v2.soundcloud.com/search/tracks?q=${query}&client_id=${await getClientId()}&limit=${n || 20}&offset=0&linked_partitioning=1&app_locale=en`).then(res => res.json());
         let resultParsed = [];
-        result.collection.forEach(song => {
-            resultParsed.push({title: info.title, url: url, author:info.user.username, authorUrl:info.user.permalink_url, thumbnail:info.artwork_url, duration:song.duration});
+        result.collection.forEach(info => {
+            resultParsed.push({title: info.title, url: info.permalink_url, author:info.user.username, authorUrl:info.user.permalink_url, thumbnail:info.artwork_url, duration:parseInt(info.duration/1000)});
         });
         resolve(resultParsed);
     });

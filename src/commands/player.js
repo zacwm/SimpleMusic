@@ -105,18 +105,17 @@ exports.getQuery = (query, opts) => {
     return new Promise(async (resolve, reject) => {
         let songs = [];
         
-        sourcesNames = Object.keys(sources);
+        let sourcesNames = Object.keys(sources);
 
-        for (i = 0; i < sourcesNames.length; i++) {
-            if (sources[sourcesNames[i]].url.test(query)) {
-                sources[sourcesNames[i]].getInfo(query).then(songsData => {
-                    songsData.forEach(songData => {
-                        songs.push({ ...opts, ...songData, platform:sourcesNames[i]});
-                    });
-                    return resolve(songs);
-                }).catch(e => {
+        for (j = 0; j < sourcesNames.length; j++) {
+            if (sources[sourcesNames[j]].url.test(query)) {
+                let results = await sources[sourcesNames[j]].getInfo(query).catch(e => {
                     reject(e);
                 });
+                results.forEach(songData => {
+                    songs.push({ ...opts, ...songData, platform:sourcesNames[j]});
+                });
+                return resolve(songs);
             }
         }
         
