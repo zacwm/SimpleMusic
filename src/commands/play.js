@@ -16,7 +16,7 @@ sm.command(["play", "p"], async (msg) => {
                                 color: msg.colors.warn,
                                 description: "You need to first make a search with !search (platform) [query]"
                             }});
-                        } else if (player.players[msg.guild.id].searchResults[parseInt(query)] != undefined) {
+                        } else if (player.players[msg.guild.id].searchResults[parseInt(query) - 1] != undefined) {
                             await player.play([{ channel: msg.channel.id, requester: msg.author.id, ...player.players[msg.guild.id].searchResults[parseInt(query)-1]}], msg.channel, msg.guild.id, msg.member.voice.channel);player.players[msg.guild.id].searchResults = null;
                         } else {
                             msg.channel.send("", {embed: {
