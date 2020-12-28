@@ -2,6 +2,7 @@
 const config = require("../config");
 const sm = require("../index");
 const chalk = require("chalk");
+const player = require("./player");
 
 // Ready
 sm.client.on("ready", () => {
@@ -32,12 +33,12 @@ sm.client.on("message", msg => {
 
 // Disconnection from a playing channel 
 sm.client.on("voiceStateUpdate", (oldState, newState) => {
-    if ((newState.member.id == sm.client.user.id && newState.connection == null) && sm.data[newState.guild.id]) {
-        let guildData = sm.data[newState.guild.id];
-        if (guildData.disconnect) clearTimeout(sm.data[newState.guild.id].disconnect);
+    if ((newState.member.id == sm.client.user.id && newState.connection == null) && player.players[newState.guild.id]) {
+        let guildData = player.players[newState.guild.id];
+        if (guildData.disconnect) clearTimeout(player.players[newState.guild.id].disconnect);
         if (guildData.statusMessage) guildData.statusMessage.delete();
         if (guildData.playing) guildData.playing.dispatcher.destroy();
-        delete sm.data[newState.guild.id];
+        delete player.players[newState.guild.id];
         sm.log("music", `Disconnected from voice ${newState.guild.name} (${newState.guild.id})`);
     }
 });

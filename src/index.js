@@ -10,12 +10,10 @@ const { mainModule } = require("process");
 client.login(config.credentials.discord);
 
 var commands = {};
-var data = {};
 
 // Exports
 exports.command = defineCommand;
 exports.commands = commands;
-exports.data = data;
 exports.client = client;
 exports.log = log;
 
@@ -25,8 +23,10 @@ function defineCommand(command, callback) {
 };
 
 fs.readdirSync("./commands").forEach(command => {
-    log("command", `Loaded ${command}`);
-    require(`./commands/${command}`);
+    if (command.endsWith('.js')) {
+        log("command", `Loaded ${command}`);
+        require(`./commands/${command}`);
+    }
 });
 
 // Logs lmao
@@ -34,6 +34,9 @@ function log(type, message) {
     switch(type) {
         case "command":
             type = chalk.magenta.bold("command".padStart(7, " "))
+            break;
+        case "source":
+            type = chalk.cyan.bold("music".padStart(7, " "));
             break;
         case "bot":
             type = chalk.blue.bold("bot".padStart(7, " "));

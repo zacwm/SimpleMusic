@@ -1,12 +1,13 @@
 // SimpleMusic - Command
 const sm = require("../index");
+const player = require("./player");
 
 sm.command(["playing", "nowplaying", "np", "current", "now"], async (msg) => {
-    let guildData = sm.data[msg.guild.id];
+    let guildData = player.players[msg.guild.id];
     if (guildData && guildData.playing) {
         if (guildData.statusMessage) {
             guildData.statusMessage.delete();
-            delete sm.data[msg.guild.id].statusMessage;
+            delete player.players[msg.guild.id].statusMessage;
         }
         let playedTime = Math.floor(guildData.playing.dispatcher.streamTime / 1000);
         let totalTime = parseInt(guildData.playing.song.duration);
@@ -21,7 +22,7 @@ sm.command(["playing", "nowplaying", "np", "current", "now"], async (msg) => {
             ret += "" + secs;
             return ret;
         }
-        sm.data[msg.guild.id].statusMessage = await msg.channel.send("", {embed: {
+        player.players[msg.guild.id].statusMessage = await msg.channel.send("", {embed: {
             color: msg.colors.ok,
             thumbnail: { url: guildData.playing.song.thumbnail },
             title: guildData.playing.song.title,
