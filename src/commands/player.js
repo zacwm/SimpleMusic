@@ -68,6 +68,7 @@ exports.playSong = async (voiceConnection, song) => {
         setImmediate(player.nextSong, voiceConnection, guild.id);
         return;
     }
+    voiceConnection.voice.setSelfDeaf(true);
     dispatcher.setVolume(config.music.volume / 100);
     player.players[guild.id].playing = { dispatcher, song }
     player.players[guild.id].voiceConnection = voiceConnection;
