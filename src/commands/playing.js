@@ -27,7 +27,7 @@ sm.command(["playing", "nowplaying", "np", "current", "now"], async (msg) => {
             thumbnail: { url: guildData.playing.song.thumbnail },
             title: guildData.playing.song.title,
             url: guildData.playing.song.url,
-            description: `${formatTime(playedTime)} [${"■".repeat(playedPercent/5)}${"□".repeat(20 - (playedPercent/5))}] ${formatTime(totalTime)} (${playedPercent}%)${(guildData.loop ? "🔄" : "")}\n`,
+            description: (guildData.playing.song.duration == 0) ? '' :`${formatTime(playedTime)} [${"■".repeat(playedPercent/5)}${"□".repeat(20 - (playedPercent/5))}] ${formatTime(totalTime)} (${playedPercent}%)${(guildData.loop ? "🔄" : "")}\n`,
             fields: [
                 {
                     name: "Requested by",

@@ -17,7 +17,7 @@ sm.command(["play", "p"], async (msg) => {
                                 description: "You need to first make a search with !search (platform) [query]"
                             }});
                         } else if (player.players[msg.guild.id].searchResults[parseInt(query) - 1] != undefined) {
-                            await player.play([{ channel: msg.channel.id, requester: msg.author.id, ...player.players[msg.guild.id].searchResults[parseInt(query)-1]}], msg.channel, msg.guild.id, msg.member.voice.channel);player.players[msg.guild.id].searchResults = null;
+                            await player.play([{ channel: msg.channel.id, requester: msg.author.id, ...player.players[msg.guild.id].searchResults[parseInt(query)-1]}], msg.channel, msg.guild.id, msg.member.voice.channel);
                         } else {
                             msg.channel.send("", {embed: {
                                 color: msg.colors.error,
@@ -28,7 +28,15 @@ sm.command(["play", "p"], async (msg) => {
                     } else {
                         player.getQuery(query, { channel: msg.channel.id, requester: msg.author.id })
                         .then(async res => {
-                            await player.play(res, msg.channel, msg.guild.id, msg.member.voice.channel);
+                            if (res.length == 0) {
+                                msg.channel.send("", {embed: {
+                                    color: msg.colors.warn,
+                                    title: `Error`,
+                                    description: "No results found"
+                                }});
+                            } else {
+                                await player.play(res, msg.channel, msg.guild.id, msg.member.voice.channel);
+                            }
                             msg.channel.stopTyping();
                         })
                         .catch(err => {
