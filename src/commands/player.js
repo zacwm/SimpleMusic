@@ -30,17 +30,23 @@ exports.play = async (tracks, textChannel, guildId, voiceChannel) => {
                     color: config.commands.colors.ok,
                     author: { name: "Now Playing" },
                     thumbnail: { url: song.thumbnail },
-                    description: `[${song.title}](${song.url})`
+                    description: `[${song.title}](${song.url})`,
+                    footer: {
+                        text: (tracks.length > 1) ? `And added ${tracks.length} other track${(tracks.length > 1) ? 's' : ''} to the queue` : null,
+                    }
                 }});
                 await player.playSong(connection, song);
                 resolve();
             });
-        } else if (tracks.length == 1) {
+        } else if (tracks.length > 1) {
             player.players[guildId].statusMessage = await textChannel.send("", {embed: {
                 color: config.commands.colors.ok,
                 author: { name: "Added to queue" },
                 thumbnail: { url: tracks[0].thumbnail },
-                description: `[${tracks[0].title}](${tracks[0].url})`
+                description: `[${tracks[0].title}](${tracks[0].url})`,
+                footer: {
+                    text: (tracks.length > 1) ? `And ${tracks.length-1} other track${(tracks.length > 2) ? 's' : ''} to the queue` : null,
+                }
             }});
             resolve();
         }
