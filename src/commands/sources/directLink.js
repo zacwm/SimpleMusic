@@ -1,9 +1,7 @@
 // SimpleMusic - Source
-
-
 exports.alias = ['directlink', 'direct', 'link', 'dl'];
 
-exports.url = /$./i;
+exports.url = /((https?|ftp):((\/\/)|(\\\\))+[\w\d:#@%/;$()~_?\+-=\\\.&]*\.(mp3|mp4|m4a|wav))/i;
 
 exports.getStream = async (url) => {
     return url;

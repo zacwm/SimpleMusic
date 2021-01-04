@@ -2,8 +2,7 @@
 const config = require("../../config");
 
 const youtubenode = require("youtube-node");
-const ytdl = require('ytdl-core');
-const { play } = require("../player");
+const ytdl = require("ytdl-core");
 const ytnode = new youtubenode();
 ytnode.setKey(config.credentials.youtube);
 
