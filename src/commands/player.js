@@ -38,7 +38,7 @@ exports.play = async (tracks, textChannel, guildId, voiceChannel) => {
                 await player.playSong(connection, song);
                 resolve();
             });
-        } else if (tracks.length > 1) {
+        } else {
             player.players[guildId].statusMessage = await textChannel.send("", {embed: {
                 color: config.commands.colors.ok,
                 author: { name: "Added to queue" },
