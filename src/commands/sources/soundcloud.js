@@ -26,7 +26,31 @@ exports.getInfo = (url) => {
         if (info.error) {
             reject();
         } else {
-            resolve([{title: info.title, url: info.permalink_url, author:info.user.username, authorUrl:info.user.permalink_url, thumbnail:info.artwork_url, duration:parseInt(info.duration/1000)}]);
+            if (info.kind == "track") {
+                resolve([parseTrackData(info)]);
+            } else if (info.kind = "playlist") {
+                let playlist = [];
+                let toFetch = "";
+                
+                info.tracks.forEach(trackInfo => {
+                    if (trackInfo.permalink_url) {
+                        playlist.push(parseTrackData(trackInfo));
+                    } else {
+                        if (toFetch != "") toFetch += ","+trackInfo.id;
+                            else toFetch += trackInfo.id;
+                    }
+                });
+
+                if (toFetch != "") {
+                    let newInfo = await fetch(`https://api-v2.soundcloud.com/tracks?ids=${encodeURI(toFetch)}&client_id=${await getClientId()}`).then(res => res.json());
+                    newInfo.forEach(trackInfo => {
+                        playlist.push(parseTrackData(trackInfo));
+                    });
+                }
+                resolve(playlist);
+            } else {
+                reject();
+            }
         }
     });
 }
@@ -36,7 +60,7 @@ exports.search = (query, n) => {
         let result = await fetch(`https://api-v2.soundcloud.com/search/tracks?q=${query}&client_id=${await getClientId()}&limit=${n || 20}&offset=0&linked_partitioning=1&app_locale=en`).then(res => res.json());
         let resultParsed = [];
         result.collection.forEach(info => {
-            resultParsed.push({title: info.title, url: info.permalink_url, author:info.user.username, authorUrl:info.user.permalink_url, thumbnail:info.artwork_url, duration:parseInt(info.duration/1000)});
+            resultParsed.push(parseTrackData(info));
         });
         resolve(resultParsed);
     });
@@ -67,4 +91,8 @@ async function getClientId() {
         }
         resolve(clientId);
     });
+}
+
+function parseTrackData(info) {
+    return {title: info.title, url: info.permalink_url, author:info.user.username, authorUrl:info.user.permalink_url, thumbnail:info.artwork_url, duration:parseInt(info.duration/1000)};
 }
