@@ -146,13 +146,10 @@ exports.search = (query, n) => {
 
         for (i = 0; i < sourcesNames.length; i++) {
             if (sourceName) break;
-            for (j = 0; j < sources[sourcesNames[i]].alias.length; j++) {
-                if (sourceName) break;
-                if (sources[sourcesNames[i]].alias[j] == first) {
-                    sourceName = sourcesNames[i];
-                    query = query.slice(first.length+1);
-                    break;
-                }
+            if (sources[sourcesNames[i]].alias.includes(first)) {
+                sourceName = sourcesNames[i];
+                query = query.slice(first.length+1);
+                break;
             }
         }
         if (!sourceName) sourceName = defaultSource;
