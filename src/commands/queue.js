@@ -1,6 +1,7 @@
 // SimpleMusic - Command
 const sm = require("../index");
 const player = require("./player");
+const config = require("../config");
 
 sm.command(["queue", "q"], (msg) => {
     let queue = (player.players[msg.guild.id]) ? player.players[msg.guild.id].queue : [];

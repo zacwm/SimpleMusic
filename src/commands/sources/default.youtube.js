@@ -44,7 +44,6 @@ exports.getInfo = (url) => {
 
 exports.search = (query, n) => {
     return new Promise((resolve, reject) => {
-        console.log('woop');
         ytnode.search(query, n || 20, {type: 'video'}, async (err, result) => {
             if (err) return reject(err);
             let resultFiltered = [];
