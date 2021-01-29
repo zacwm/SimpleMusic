@@ -116,7 +116,7 @@ exports.getQuery = (query, opts) => {
 
         for (j = 0; j < sourcesNames.length; j++) {
             if (sources[sourcesNames[j]].url.test(query)) {
-                let results = await sources[sourcesNames[j]].getInfo(query).catch(e => {
+                let results = await sources[sourcesNames[j]].getInfo(query.match(sources[sourcesNames[j]].url)[0]).catch(e => {
                     reject(e);
                 });
                 results.forEach(songData => {

@@ -10,7 +10,7 @@ exports.getStream = async (url) => {
 exports.getInfo = async (url) => {
     return new Promise((resolve) => {resolve([{
             title: "Direct Link",
-            url: url.match(exports.url)[0],
+            url: url,
             duration: 0,
         }]);});
 }
