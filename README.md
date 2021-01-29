@@ -3,13 +3,16 @@
 A simple & *kinda configurable* Discord.js music bot!
 
 ## Commands
-[required], (optional) | All commands start with the configued prefix in `config.js`.
+[required], (optional) | All commands start with the configured prefix in `config.js`.
 
-### `!play [query]` / `!p [query]`
-Will queue the query or play immediately if it is the first song in the queue. A query can be a search term and will grab the first result or a YouTube video URL or a SoundCloud URL.
+### `!play (platform) [query|n]` / `!p [query|n]`
+Will play or add to the queue the first search result from the query on the specified platform or YouTube if none is given. It also accepts direct URLs for supported platforms and alongside the `!search` command it allows to select from a list of search results.
+
+### `!search (platform) [query]`
+Will return search results for the specified query, on the specified platform or YouTube if none is given. Then the `!play [n]` command can be used to select which one of the results will be added to the queue/played.
 
 ### `!skip` / `!s`
-Will skip the current playing song for the next song in queue.
+Will skip the current playing song and play the next song in queue.
 
 ### `!delete [n|last]`
 Will delete from the queue the song in the `n` position or the last one if `last` is given as an argument.
@@ -27,7 +30,10 @@ Will toggle loop.
 Will disconnect from the voice channel and remove all songs from the queue.
 
 ### `!ping`
-Used to check if the bot is responding...
+Used to check if the bot is responding.
+
+### `!info`
+Will give info about the bot.
 
 ## Installing
 1. Clone and navigate to the directory in terminal
