@@ -23,6 +23,7 @@
   "homepage": "https://github.com/zacimac/SimpleMusic#readme",
   "dependencies": {
     "@discordjs/opus": "^0.3.3",
+    "bandcamp-fetch": "0.1.0-a-20210126",
     "chalk": "^4.1.0",
     "discord.js": "^12.5.1",
     "ffmpeg": "0.0.4",
