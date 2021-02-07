@@ -9,7 +9,7 @@ sm.command(["play", "p"], async (msg) => {
         if (msg.member.voice.channel) { // Check if user is in a voice channel.
             if (msg.member.voice.channel.permissionsFor(sm.client.user).has("CONNECT")) { // Check if bot has permissions to connect to the members voice channel.
                 if (true) { // Insert later: Check for activity in another guild voice channel.
-                    msg.channel.startTyping();
+                    msg.channel.startTyping(15);
                     if (Number.isInteger(parseInt(query))) {
                         if (!player.players[msg.guild.id].searchResults) {
                             msg.channel.send("", {embed: {
