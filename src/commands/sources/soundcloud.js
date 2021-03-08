@@ -5,7 +5,7 @@ const fetch = require('node-fetch');
 
 exports.alias = ['soundcloud', 'sc'];
 
-exports.url = /https{0,1}:\/\/w{0,3}\.*soundcloud\.com\/([A-Za-z0-9_-]+)\/([A-Za-z0-9_-]+)[^< ]*/i;
+exports.url = /(https*:\/\/)?soundcloud\.com\/([A-Za-z0-9_-]+)\/([A-Za-z0-9_-]+)[^< ]*/i;
 
 exports.getStream = async (url) => {
     return new Promise(async (resolve, reject) => {
@@ -21,6 +21,8 @@ exports.getStream = async (url) => {
 
 exports.getInfo = (url) => {
     return new Promise(async (resolve, reject) => {
+        if (!(url.startsWith('http://') || url.startsWith('https://'))) url = 'https://' + url;
+
         let info = await fetch(`https://api-v2.soundcloud.com/resolve?url=${encodeURI(url)}&client_id=${await getClientId()}`).then(res => res.json()).catch(err => reject(err));
 
         if (info.error) {

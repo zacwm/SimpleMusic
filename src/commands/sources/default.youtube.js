@@ -16,9 +16,10 @@ exports.getStream = (url) => {
 
 exports.getInfo = (url) => {
     return new Promise(async (resolve, reject) => {
+        if (!(url.startsWith('http://') || url.startsWith('https://'))) url = 'https://' + url;
         if (/(?:youtube.[a-z]+\/[a-z\?\&]*v[/|=]|youtu.be\/)([0-9a-zA-Z-_]+)/i.test(url)) {
             ytdl.getInfo(url).then(info => {
-                resolve([{title: info.videoDetails.title, url: url, duration: info.is_live ? 0 : info.videoDetails.lengthSeconds, thumbnail: `https://img.youtube.com/vi/${info.videoDetails.videoId}/maxresdefault.jpg`}]);
+                resolve([{title: info.videoDetails.title, url: url, duration: info.is_live ? 0 : info.videoDetails.lengthSeconds, thumbnail: info.videoDetails.thumbnails[info.videoDetails.thumbnails.length-1].url}]);
             }).catch(e => {
                 reject(e);
             });
