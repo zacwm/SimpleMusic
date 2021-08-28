@@ -1,44 +1,11 @@
 # SimpleMusic
-*I didn't have a better name...*<br />
-A simple & *kinda configurable* Discord.js music bot!
 
-## Commands
-[required], (optional) | All commands start with the configured prefix in `config.js`.
+[Commands](./COMMANDS.md) | [Installing](./INSTALLING)
 
-### `!play (platform) [query|n]` / `!p [query|n]`
-Will play or add to the queue the first search result from the query on the specified platform or YouTube if none is given. It also accepts direct URLs for supported platforms and alongside the `!search` command it allows to select from a list of search results.
+_I didn't have a better name..._<br />
+A simple & _kinda configurable_ Discord.js music bot!
 
-### `!search (platform) [query]`
-Will return search results for the specified query, on the specified platform or YouTube if none is given. Then the `!play [n]` command can be used to select which one of the results will be added to the queue/played.
+## Thank you to...
 
-### `!skip` / `!s`
-Will skip the current playing song and play the next song in queue.
-
-### `!delete [n|last]`
-Will delete from the queue the song in the `n` position or the last one if `last` is given as an argument.
-
-### `!playing` / `!nowplaying` / `!np` / `!current` / `!now`
-Will return with information such as the time played, song length, what channel it is playing in and who requested it for the current playing song.
-
-### `!queue (page number)` / `!q (page number)`
-Will list the upcoming queued songs for the voice channel. If there is more than 10, a page number can be specified to list more.
-
-### `!loop`
-Will toggle loop.
-
-### `!stop` / `!leave` / `!disconnect`
-Will disconnect from the voice channel and remove all songs from the queue.
-
-### `!ping`
-Used to check if the bot is responding.
-
-### `!info`
-Will give info about the bot.
-
-## Installing
-1. Clone and navigate to the directory in terminal
-2. Ensure Node.js v14.0.0 or newer is installed by using `node -v`
-3. Install required packages by using `npm i`
-4. Rename `template.config.js` to `config.js` located in the `/src` folder, then open and follow steps inside.
-5. Run `npm start` to start the bot.
-7. Have a party! :)
+🌟 - [elybeatmaker](https://github.com/elybeatmaker)
+🌟 - [Filyx20](https://github.com/Filyx20)
