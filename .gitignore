@@ -1,3 +1,10 @@
+# General
+.vscode
 /node_modules
-config.js
 package-lock.json
+
+# SimpleMusic
+config.js
+
+# Temp Development
+/src/old-commands
