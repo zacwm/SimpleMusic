@@ -1,54 +1,35 @@
-// SimpleMusic ~ Zachary (@zacimac)
+// SimpleMusic | https://github.com/zacimac/SimpleMusic
 // A simple & configurable Discord.js music bot!
-const Discord = require("discord.js");
-const client = new Discord.Client();
-const chalk = require("chalk");
+
+const { Client, Intents } = require("discord.js");
+const logs = require("./common/logs");
 const fs = require("fs");
-const config = require("./config");
-const { mainModule } = require("process");
-
-client.login(config.credentials.discord);
-
-var commands = {};
+const path = require("path");
+const config = require("../config");
 
 // Exports
-exports.command = defineCommand;
-exports.commands = commands;
-exports.client = client;
-exports.log = log;
-
-// Load commands
-function defineCommand(command, callback) {
-    command.forEach(alias => { commands[alias] = callback; });
-};
-
-fs.readdirSync("./commands").forEach(command => {
-    if (command.endsWith('.js')) {
-        log("command", `Loaded ${command}`);
-        require(`./commands/${command}`);
-    }
+exports.moduleMetas = [];
+exports.Modules = {};
+exports.Client = new Client({
+  intents: [
+    Intents.FLAGS.GUILDS,
+    Intents.FLAGS.GUILD_MEMBERS,
+    Intents.FLAGS.GUILD_PRESENCES,
+    Intents.FLAGS.GUILD_VOICE_STATES,
+  ],
 });
 
-// Logs lmao
-function log(type, message) {
-    switch(type) {
-        case "command":
-            type = chalk.magenta.bold("command".padStart(7, " "))
-            break;
-        case "source":
-            type = chalk.cyan.bold("music".padStart(7, " "));
-            break;
-        case "bot":
-            type = chalk.blue.bold("bot".padStart(7, " "));
-            break;
-        case "music":
-            type = chalk.green.bold("music".padStart(7, " "));
-            break;
-        case "error":
-            type = chalk.red.bold("ERROR".padStart(7, " "));
-            break;
-        default:
-            type = type.padStart(7, " ");
-    }
-    console.log(`${type} > ${message}`);
-}
+// Load Modules
+fs.readdirSync(path.join(__dirname, "./modules")).forEach((file) => {
+  try {
+    if (!file.endsWith(".js")) return;
+    this.Modules[file] = require(path.join(__dirname, "./modules", file));
+    if (this.Modules[file].meta) this.moduleMetas.push(this.Modules[file].meta);
+  } catch (err) {
+    logs("error", `Error thrown trying to load module '${file}'`);
+    console.error(err);
+  }
+});
+
+require("./common/events");
+this.Client.login(config.credentials.discord);
