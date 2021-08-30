@@ -55,4 +55,4 @@ fs.readdirSync(path.join(__dirname, "./modules")).forEach((file) => {
 });
 
 require("./common/events");
-this.Client.login(config.credentials.discord);
+this.Client.login(config.token);
