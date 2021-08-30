@@ -15,7 +15,7 @@ const eventEmit = (event, args) => {
   }
 
   for (const module in Modules) {
-    if (Modules[module][event]) return Modules[module][event](...args);
+    if (Modules[module][event]) Modules[module][event](...args);
   }
 };
 
@@ -25,7 +25,7 @@ const events = [
   "warn",
   "error",
   "interactionCreate",
-  "voiceStateUpdate"
+  "voiceStateUpdate",
 ];
 
 events.forEach((event) => {
