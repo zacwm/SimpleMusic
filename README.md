@@ -1,7 +1,7 @@
 # SimpleMusic
 Version 2 - Now with slash commands!
 
-[Commands](./COMMANDS.md) | [Installing](./INSTALLING)
+[Commands](./COMMANDS.md) | [Installing](./INSTALLING.md)
 
 _I didn't have a better name..._<br />
 A simple & _slightly configurable_ Discord.JS v13 music bot!
