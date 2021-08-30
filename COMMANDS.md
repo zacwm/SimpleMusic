@@ -1,32 +1,31 @@
 # Commands
-[required], (optional) | All commands start with the configured prefix in `config.js`.
+[< Back](./README.md)
 
-### `!play (platform) [query|n]` / `!p [query|n]`
-Will play or add to the queue the first search result from the query on the specified platform or YouTube if none is given. It also accepts direct URLs for supported platforms and alongside the `!search` command it allows to select from a list of search results.
+\[required\] \(optional)
 
-### `!search (platform) [query]`
-Will return search results for the specified query, on the specified platform or YouTube if none is given. Then the `!play [n]` command can be used to select which one of the results will be added to the queue/played.
+### `/play`
+Adds a song to the queue and will join the voice channel and automatically start if it is the first song in the queue.
 
-### `!skip` / `!s`
+### `/skip`
 Will skip the current playing song and play the next song in queue.
 
-### `!delete [n|last]`
-Will delete from the queue the song in the `n` position or the last one if `last` is given as an argument.
+### `/playing`
+Displays the current playing song information and progress through the song.
 
-### `!playing` / `!nowplaying` / `!np` / `!current` / `!now`
-Will return with information such as the time played, song length, what channel it is playing in and who requested it for the current playing song.
+### `!queue list (page number)`
+Will list all upcomming songs in the queue.
 
-### `!queue (page number)` / `!q (page number)`
-Will list the upcoming queued songs for the voice channel. If there is more than 10, a page number can be specified to list more.
+### `!queue delete [position]`
+Will delete the song that is at the 'position' in the queue.
 
 ### `!loop`
-Will toggle loop.
+Will toggle queue looping.
 
-### `!stop` / `!leave` / `!disconnect`
+### `!stop`
 Will disconnect from the voice channel and remove all songs from the queue.
 
 ### `!ping`
-Used to check if the bot is responding.
+Used to check if the bot is responsive and how much of a delay there is with communicating to Discord.
 
-### `!info`
-Will give info about the bot.
+### `!help`
+Will give helpful information about SimpleMusic.
