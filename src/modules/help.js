@@ -1,5 +1,6 @@
 // SimpleMusic Module
 
+const config = require("../../config");
 const { MessageEmbed } = require("discord.js");
 
 // Command
@@ -11,6 +12,7 @@ exports.meta = {
 exports.interactionCreate = (interaction) => {
   if (!interaction.isCommand() || !interaction.guildId) return;
   if (interaction.commandName !== this.meta.name) return;
+
   interaction.reply({
     embeds: [
       new MessageEmbed()
@@ -33,7 +35,8 @@ exports.interactionCreate = (interaction) => {
               "[Filyx20](https://github.com/Filyx20)",
             inline: true,
           },
-        ]),
+        ])
+        .setColor(config.commands.colors.ok),
     ],
   });
 };

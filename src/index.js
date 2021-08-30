@@ -1,11 +1,12 @@
 // SimpleMusic | https://github.com/zacimac/SimpleMusic
 // A simple & configurable Discord.js music bot!
 
-const { Client, Intents } = require("discord.js");
+const { Client, Intents, MessageEmbed } = require("discord.js");
 const logs = require("./common/logs");
 const fs = require("fs");
 const path = require("path");
 const config = require("../config");
+const { Player } = require("discord-player");
 
 // Exports
 exports.moduleMetas = [];
@@ -17,6 +18,28 @@ exports.Client = new Client({
     Intents.FLAGS.GUILD_PRESENCES,
     Intents.FLAGS.GUILD_VOICE_STATES,
   ],
+});
+exports.Player = new Player(this.Client);
+
+this.Player.on("trackStart", (queue, track) => {
+  queue.metadata.channel.send({
+    embeds: [
+      new MessageEmbed()
+        .setDescription(`Now playing **[${track.title}](${track.url})**\nRequested by: <@${track.requestedBy.id}>`)
+        .setThumbnail(track.thumbnail)
+        .setColor(config.commands.colors.ok),
+    ],
+  });
+});
+
+this.Player.on("queueEnd", (queue) => {
+  queue.metadata.channel.send({
+    embeds: [
+      new MessageEmbed()
+        .setDescription(`Finished the queue in <#${queue.connection.channel.id}>`)
+        .setColor(config.commands.colors.ok),
+    ],
+  });
 });
 
 // Load Modules
