@@ -7,11 +7,9 @@ const logs = require("./logs");
 const eventEmit = (event, args) => {
   if (event === "ready") {
     logs("ready", `Logged in as '${Client.user.tag}' (${Client.user.id})`);
-    Client.guilds.fetch("669869390287863850").then((g) => {
-      g.commands.set(moduleMetas)
-        .then(() => { logs("command", `Set ${moduleMetas.length} temp-guild command${moduleMetas.length !== 1 ? "s" : ""}.`); })
-        .catch(console.error);
-    });
+    Client.application.commands.set(moduleMetas)
+      .then(() => { logs("command", `Set ${moduleMetas.length} global command${moduleMetas.length !== 1 ? "s" : ""}.`); })
+      .catch(console.error);
   }
 
   for (const module in Modules) {
