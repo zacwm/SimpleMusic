@@ -12,20 +12,20 @@ Will skip the current playing song and play the next song in queue.
 ### `/playing`
 Displays the current playing song information and progress through the song.
 
-### `!queue list (page number)`
+### `/queue list (page number)`
 Will list all upcomming songs in the queue.
 
-### `!queue delete [position]`
+### `/queue delete [position]`
 Will delete the song that is at the 'position' in the queue.
 
-### `!loop`
+### `/loop`
 Will toggle queue looping.
 
-### `!stop`
+### `/stop`
 Will disconnect from the voice channel and remove all songs from the queue.
 
-### `!ping`
+### `/ping`
 Used to check if the bot is responsive and how much of a delay there is with communicating to Discord.
 
-### `!help`
+### `/help`
 Will give helpful information about SimpleMusic.
