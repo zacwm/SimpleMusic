@@ -11,6 +11,7 @@ const { Player } = require("discord-player");
 // Exports
 exports.moduleMetas = [];
 exports.Modules = {};
+exports.VoteSkips = {};
 exports.Client = new Client({
   intents: [
     Intents.FLAGS.GUILDS,

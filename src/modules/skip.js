@@ -2,7 +2,7 @@
 
 const { MessageEmbed } = require("discord.js");
 const config = require("../../config");
-const { Player } = require("../index");
+const { Player, VoteSkips } = require("../index");
 
 // Command
 exports.meta = {
@@ -58,14 +58,62 @@ exports.interactionCreate = async (interaction) => {
   await interaction.deferReply();
   const queueData = Player.getQueue(interaction.guild);
   if (queueData?.playing) {
-    await queueData.skip();
-    interaction.followUp({
-      embeds: [
-        new MessageEmbed()
-          .setDescription("**Skipped...**")
-          .setColor(config.commands.colors.ok),
-      ],
-    });
+    const doSkip = async () => {
+      await queueData.skip();
+      delete VoteSkips[interaction.guildId];
+      interaction.followUp({
+        embeds: [
+          new MessageEmbed()
+            .setDescription("**Skipped...**")
+            .setColor(config.commands.colors.ok),
+        ],
+      });
+    };
+
+    if (!VoteSkips[interaction.guildId]) VoteSkips[interaction.guildId] = new Map();
+    if (VoteSkips[interaction.guildId].has(interaction.member.id)) {
+      return interaction.followUp({
+        embeds: [
+          new MessageEmbed()
+            .setDescription("Your skip vote has already been placed.\n" +
+            `${(typeof guildConfig.SkipVoting === "string") ? `At ${Math.floor((VoteSkips[interaction.guildId].size / queueData.connection.channel.members.size) * 100)}% of ${parseInt(guildConfig.SkipVoting)}% members in call required.` : ""}` +
+            `${(typeof guildConfig.SkipVoting === "number" && guildConfig.SkipVoting > 0) ? `At ${VoteSkips[interaction.guildId].size} of ${guildConfig.SkipVoting} members required.` : ""}`)
+            .setColor(config.commands.colors.error),
+        ],
+      });
+    }
+
+    if (guildConfig.SkipVoting === -1) {
+      // Never skipping
+      return interaction.followUp({
+        embeds: [
+          new MessageEmbed()
+            .setDescription("Skipping is disabled in this server.")
+            .setColor(config.commands.colors.error),
+        ],
+      });
+    } else if (guildConfig.SkipVoting === 0) {
+      // Instant skipping
+      return doSkip();
+    } else if ((typeof guildConfig.SkipVoting === "string" && Math.floor((VoteSkips[interaction.guildId].size / queueData.connection.channel.members.size - 1) * 100) >= parseInt(guildConfig.SkipVoting)) || queueData.connection.channel.members.size === 2) {
+      // Percentage skipping (reached)
+      return doSkip();
+    } else if (VoteSkips[interaction.guildId].size - 1 >= guildConfig.SkipVoting || queueData.connection.channel.members.size === 2) {
+      // Specific skipping (reached)
+      return doSkip();
+    } else {
+      // Skip requested
+      VoteSkips[interaction.guildId].set(interaction.member.id);
+      return interaction.followUp({
+        embeds: [
+          new MessageEmbed()
+            .setDescription("Your skip vote has been placed.\n" +
+              `${(typeof guildConfig.SkipVoting === "string") ? `At ${Math.floor((VoteSkips[interaction.guildId].size / queueData.connection.channel.members.size) * 100)}% of ${parseInt(guildConfig.SkipVoting)}% members in call required.` : ""}` +
+              `${(typeof guildConfig.SkipVoting === "number" && guildConfig.SkipVoting > 0) ? `At ${VoteSkips[interaction.guildId].size} of ${guildConfig.SkipVoting} members required.` : ""}`)
+            .setColor(config.commands.colors.ok),
+        ],
+      });
+    }
   } else {
     interaction.followUp({
       embeds: [
