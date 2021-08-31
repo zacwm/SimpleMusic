@@ -19,7 +19,7 @@ exports.interactionCreate = (interaction) => {
         .setTitle("Hey! 👋")
         .setDescription(
           "❤️ Thanks for using [SimpleMusic v2](https://github.com/zacimac/SimpleMusic)\n" +
-          "For a list of commands [click here](https://github.com/zacimac/SimpleMusic/COMMANDS.md)\n" +
+          "For a list of commands [click here](https://github.com/zacimac/SimpleMusic/blob/main/COMMANDS.md)\n" +
           "🌟 Also be sure to star this repo on GitHub!",
         )
         .setFields([

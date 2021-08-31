@@ -31,7 +31,7 @@ exports.interactionCreate = async (interaction) => {
     });
   }
   const guildConfig = config.commands.whitelist.guilds[interaction.guildId];
-  if (config.commands.whitelist.enabled && guildConfig.MusicAccess.length > 0 && interaction.member.roles.cache.find((role) => [guildConfig.MusicAccess].includes(role.id)) === undefined) {
+  if (config.commands.whitelist.enabled && guildConfig.MusicAccess.length > 0 && interaction.member.roles.cache.find((role) => [...guildConfig.MusicAccess].includes(role.id)) === undefined) {
     return await interaction.reply({
       embeds: [
         new MessageEmbed()

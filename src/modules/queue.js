@@ -101,6 +101,17 @@ exports.interactionCreate = async (interaction) => {
   }
 
   if (interaction.options.getSubcommand() === "delete") {
+    const guildConfig = config.commands.whitelist.guilds[interaction.guildId];
+    if (config.commands.whitelist.enabled && guildConfig.MusicAccess.length > 0 && interaction.member.roles.cache.find((role) => [...guildConfig.MusicAccess].includes(role.id)) === undefined) {
+      return await interaction.reply({
+        embeds: [
+          new MessageEmbed()
+            .setDescription("Sorry, but you don't have permission to use this command.")
+            .setColor(config.commands.colors.error),
+        ],
+        ephemeral: true,
+      });
+    }
     const queueData = Player.getQueue(interaction.guild);
     const posNumber = interaction.options.get("item").value;
     if (queueData?.tracks && queueData?.tracks.length > 0) {
