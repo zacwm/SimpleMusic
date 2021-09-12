@@ -55,22 +55,10 @@ exports.interactionCreate = async (interaction) => {
   if (interaction.options.getSubcommand() === "list") {
     const queueData = Player.getQueue(interaction.guild);
     if (queueData?.tracks && queueData?.tracks.length > 0) {
-      const arrayChunks = Array(Math.ceil(queueData.tracks.length / 10)).fill().map((_, index) => index * 5).map((begin) => queueData.tracks.slice(begin, begin + 10));
-      const pageNumber = interaction.options.get("page") ? interaction.options.get("page") - 1 : 0;
-      if (pageNumber > -1 && arrayChunks.length > pageNumber) {
-        const currentTrack = await queueData.nowPlaying();
-        interaction.reply({
-          embeds: [
-            new MessageEmbed()
-              .setTitle(`Queue for #${queueData.connection.channel.name}`)
-              .setDescription(((currentTrack && pageNumber === 0) ? `*Currently:* **[${currentTrack.title}](${currentTrack.url})** | Requested by: <@${currentTrack.requestedBy.id}>\n` : "") + arrayChunks[pageNumber].map((track, index) => `*${(pageNumber * 10) + (index + 1)}:* **[${track.title}](${track.url})** | Requested by: <@${track.requestedBy.id}>`).join("\n"))
-              .setFooter(queueData.repeatMode === QueueRepeatMode.QUEUE ? "* Queue is looping!" : "")
-              .setColor(config.commands.colors.ok),
-          ],
-          ephemeral: true,
-        });
-      } else {
-        interaction.reply({
+      const arrayChunks = Array(Math.ceil(queueData.tracks.length / 10)).fill().map((_, index) => index * 10).map((begin) => queueData.tracks.slice(begin, begin + 10));
+      const pageNumber = interaction.options.get("page") ? interaction.options.get("page").value - 1 : 0;
+      if (pageNumber < 0 && arrayChunks.length < pageNumber) {
+        return interaction.reply({
           embeds: [
             new MessageEmbed()
               .setDescription("That page number doesn't exist.")
@@ -78,6 +66,17 @@ exports.interactionCreate = async (interaction) => {
           ],
         });
       }
+      const currentTrack = await queueData.nowPlaying();
+      interaction.reply({
+        embeds: [
+          new MessageEmbed()
+            .setTitle(`Queue for #${queueData.connection.channel.name}${queueData.repeatMode === QueueRepeatMode.QUEUE ? "| 🔁" : ""}`)
+            .setDescription(((currentTrack && pageNumber === 0) ? `*Currently:* **[${currentTrack.title}](${currentTrack.url})** | Requested by: <@${currentTrack.requestedBy.id}>\n` : "") + arrayChunks[pageNumber].map((track, index) => `*${(pageNumber * 10) + (index + 1)}:* **[${track.title}](${track.url})** | Requested by: <@${track.requestedBy.id}>`).join("\n"))
+            .setFooter(`${queueData.tracks.length} song${queueData.tracks.length !== 1 ? "s" : ""} in queue • Page ${pageNumber + 1} of ${arrayChunks.length}`)
+            .setColor(config.commands.colors.ok),
+        ],
+        ephemeral: true,
+      });
     } else if (queueData?.playing) {
       const currentTrack = await queueData.nowPlaying();
       interaction.reply({
