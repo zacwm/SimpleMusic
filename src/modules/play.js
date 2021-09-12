@@ -3,6 +3,7 @@
 const { MessageEmbed } = require("discord.js");
 const config = require("../../config");
 const { Player } = require("../index");
+const { QueryType } = require("discord-player");
 
 // Command
 exports.meta = {
@@ -84,27 +85,43 @@ exports.interactionCreate = async (interaction) => {
   }
 
   await interaction.deferReply({ ephemeral: true });
-  const track = await Player.search(query, {
-    requestedBy: interaction.user,
-  }).then((results) => results.tracks[0]);
-  if (!track) {
+  const searchResults = await Player
+    .search(query, {
+      requestedBy: interaction.user,
+      searchEngine: QueryType.AUTO,
+    })
+    .catch(console.error);
+  if (!searchResults || !searchResults.tracks.length) {
     return await interaction.followUp({
       embeds: [
         new MessageEmbed()
-          .setDescription(`No results were found when searching for \`${query}\``)
+          .setDescription(`No results or valid length of songs were found when searching for \`${query}\``)
           .setColor(config.commands.colors.warn),
       ],
     });
   }
 
-  queue.play(track);
+  if (searchResults.playlist) {
+    queue.addTracks(searchResults.tracks);
+    await interaction.followUp({
+      embeds: [
+        new MessageEmbed()
+          .setDescription(`Added **${searchResults.tracks.length} song${searchResults.tracks.length !== 1 ? "s" : ""}** to the queue!\n*via ${searchResults.tracks[0].source}*`)
+          .setThumbnail(searchResults.thumbnail)
+          .setColor(config.commands.colors.ok),
+      ],
+    });
+  } else {
+    queue.addTrack(searchResults.tracks[0]);
+    await interaction.followUp({
+      embeds: [
+        new MessageEmbed()
+          .setDescription(`Added to queue!\n[${searchResults.title}](${searchResults.url})\n*via ${searchResults.source}*`)
+          .setThumbnail(searchResults.thumbnail)
+          .setColor(config.commands.colors.ok),
+      ],
+    });
+  }
 
-  return await interaction.followUp({
-    embeds: [
-      new MessageEmbed()
-        .setDescription(`Added to queue!\n[${track.title}](${track.url})\n*via ${track.source}*`)
-        .setThumbnail(track.thumbnail)
-        .setColor(config.commands.colors.ok),
-    ],
-  });
+  if (!queue.playing) queue.play();
 };
