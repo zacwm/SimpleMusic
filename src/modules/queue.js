@@ -120,7 +120,7 @@ exports.interactionCreate = async (interaction) => {
         await interaction.reply({
           embeds: [
             new MessageEmbed()
-              .setDescription(`Removed [${track.name}](${track.url}) from the queue.`)
+              .setDescription(`Removed [${track.title}](${track.url}) from the queue.`)
               .setColor(config.commands.colors.ok),
           ],
         });
