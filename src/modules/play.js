@@ -112,12 +112,13 @@ exports.interactionCreate = async (interaction) => {
       ],
     });
   } else {
-    queue.addTrack(searchResults.tracks[0]);
+    const song = searchResults.tracks[0];
+    queue.addTrack(song);
     await interaction.followUp({
       embeds: [
         new MessageEmbed()
-          .setDescription(`Added to queue!\n[${searchResults.title}](${searchResults.url})\n*via ${searchResults.source}*`)
-          .setThumbnail(searchResults.thumbnail)
+          .setDescription(`Added to queue!\n[${song.title}](${song.url})\n*via ${song.source}*`)
+          .setThumbnail(song.thumbnail)
           .setColor(config.commands.colors.ok),
       ],
     });
