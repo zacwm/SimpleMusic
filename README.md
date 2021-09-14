@@ -4,11 +4,12 @@ Version 2 - Now with slash commands!
 [Commands](./COMMANDS.md) | [Installing](./INSTALLING.md)
 
 _I didn't have a better name..._<br />
-A simple & _slightly configurable_ Discord.JS v13 music bot!
+A simple & _slightly configurable_ Discord.JS v13 music bot!<br />
 
-**Now built on [Androz2091/discord-player](https://github.com/Androz2091/discord-player)! ❤️**
-
-This bot is not maintained everyday, I'm using this as the foundation to work on another project I'll be releasing on GitHub when I think it's ready.
+## FAQ
+- **Is there a publicly hosted bot running this?** No. I'm not going to take any Cease and Desists or other legal action from Google when hosting this.
+- **Can I have it run as a public bot?** Config allows it, I don't reccomend it. I'm not taking any responsobility if you get any legal action coming your way.
+- **"Joins voice chat but just crashes or no audio"** You may need to install [FFMPEG](https://www.google.com/search?q=How+to+install+FFMPEG)
 
 ## Thank you to my sponsors! ❤️
 
