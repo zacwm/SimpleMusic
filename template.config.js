@@ -31,4 +31,14 @@ module.exports = {
       },
     },
   },
+  
+  // discord-player options:
+  discordPlayerOptions: {
+    ytdlOptions: {
+      quality: "highest",
+      filter: "audioonly",
+      highWaterMark: 1 << 25,
+      dlChunkSize: 0
+    },
+  },
 };

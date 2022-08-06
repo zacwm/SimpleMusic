@@ -1,6 +1,6 @@
 // SimpleMusic Module
 
-const { MessageEmbed } = require("discord.js");
+const { EmbedBuilder, InteractionType } = require("discord.js");
 const config = require("../../config");
 const { Player } = require("../index");
 
@@ -11,7 +11,7 @@ exports.meta = {
 };
 
 exports.interactionCreate = async (interaction) => {
-  if (!interaction.isCommand() || !interaction.guildId) return;
+  if (!interaction.type === InteractionType.ApplicationCommand || !interaction.guildId) return;
   if (interaction.commandName !== this.meta.name) return;
   if (config.commands.whitelist.enabled && !config.commands.whitelist.guilds[interaction.guildId]) {
     return await interaction.reply({
@@ -37,7 +37,7 @@ exports.interactionCreate = async (interaction) => {
     });
     interaction.followUp({
       embeds: [
-        new MessageEmbed()
+        new EmbedBuilder()
           .setTitle(`**${currentTrack.title}**`)
           .setURL(currentTrack.url)
           .setThumbnail(currentTrack.thumbnail)
@@ -48,7 +48,7 @@ exports.interactionCreate = async (interaction) => {
   } else {
     interaction.followUp({
       embeds: [
-        new MessageEmbed()
+        new EmbedBuilder()
           .setDescription("There is no song playing.")
           .setColor(config.commands.colors.warn),
       ],

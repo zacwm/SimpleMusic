@@ -1,7 +1,7 @@
 // SimpleMusic Module
 
 const config = require("../../config");
-const { MessageEmbed } = require("discord.js");
+const { EmbedBuilder, InteractionType } = require("discord.js");
 
 // Command
 exports.meta = {
@@ -10,13 +10,13 @@ exports.meta = {
 };
 
 exports.interactionCreate = (interaction) => {
-  if (!interaction.isCommand() || !interaction.guildId) return;
+  if (!interaction.type === InteractionType.ApplicationCommand || !interaction.guildId) return;
   if (interaction.commandName !== this.meta.name) return;
 
   const FirstTime = new Date();
   interaction.channel.send({
     embeds: [
-      new MessageEmbed()
+      new EmbedBuilder()
         .setDescription("Pong! 🏓"),
     ],
   }).then((IM) => {
@@ -24,7 +24,7 @@ exports.interactionCreate = (interaction) => {
     IM.delete();
     interaction.reply({
       embeds: [
-        new MessageEmbed()
+        new EmbedBuilder()
           .setDescription(`Pong! 🏓\nDelay: \`${LastTime - FirstTime} ms\``)
           .setColor(config.commands.colors.ok),
       ],

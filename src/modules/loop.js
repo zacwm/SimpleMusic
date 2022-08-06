@@ -1,6 +1,6 @@
 // SimpleMusic Module
 
-const { MessageEmbed } = require("discord.js");
+const { EmbedBuilder, InteractionType } = require("discord.js");
 const config = require("../../config");
 const { Player } = require("../index");
 const { QueueRepeatMode } = require("discord-player");
@@ -12,12 +12,12 @@ exports.meta = {
 };
 
 exports.interactionCreate = async (interaction) => {
-  if (!interaction.isCommand() || !interaction.guildId) return;
+  if (!interaction.type === InteractionType.ApplicationCommand || !interaction.guildId) return;
   if (interaction.commandName !== this.meta.name) return;
   if (config.commands.whitelist.enabled && !config.commands.whitelist.guilds[interaction.guildId]) {
     return await interaction.reply({
       embeds: [
-        new MessageEmbed()
+        new EmbedBuilder()
           .setDescription("This server is not whitelisted in the config.")
           .setColor(config.commands.colors.error),
       ],
@@ -27,7 +27,7 @@ exports.interactionCreate = async (interaction) => {
   if (config.commands.whitelist.enabled && guildConfig.MusicAccess.length > 0 && interaction.member.roles.cache.find((role) => [...guildConfig.MusicAccess].includes(role.id)) === undefined) {
     return await interaction.reply({
       embeds: [
-        new MessageEmbed()
+        new EmbedBuilder()
           .setDescription("Sorry, but you don't have permission to use this command.")
           .setColor(config.commands.colors.error),
       ],
@@ -38,17 +38,17 @@ exports.interactionCreate = async (interaction) => {
   if (!interaction.member.voice.channelId) {
     return await interaction.reply({
       embeds: [
-        new MessageEmbed()
+        new EmbedBuilder()
           .setDescription("You're not in a voice channel.")
           .setColor(config.commands.colors.warn),
       ],
       ephemeral: true,
     });
   }
-  if (interaction.guild.me.voice.channelId && interaction.member.voice.channelId !== interaction.guild.me.voice.channelId) {
+  if (interaction.guild.members.me.voice.channelId && interaction.member.voice.channelId !== interaction.guild.members.me.voice.channelId) {
     return await interaction.reply({
       embeds: [
-        new MessageEmbed()
+        new EmbedBuilder()
           .setDescription("Sorry, I'm already playing for another voice channel.")
           .setColor(config.commands.colors.warn),
       ],
@@ -63,7 +63,7 @@ exports.interactionCreate = async (interaction) => {
       await queueData.setRepeatMode(QueueRepeatMode.OFF);
       interaction.followUp({
         embeds: [
-          new MessageEmbed()
+          new EmbedBuilder()
             .setDescription("Queue looping has been turned **off**.")
             .setColor(config.commands.colors.ok),
         ],
@@ -72,7 +72,7 @@ exports.interactionCreate = async (interaction) => {
       await queueData.setRepeatMode(QueueRepeatMode.QUEUE);
       interaction.followUp({
         embeds: [
-          new MessageEmbed()
+          new EmbedBuilder()
             .setDescription("Queue looping has been turned **on**.")
             .setColor(config.commands.colors.ok),
         ],
@@ -81,7 +81,7 @@ exports.interactionCreate = async (interaction) => {
   } else {
     interaction.followUp({
       embeds: [
-        new MessageEmbed()
+        new EmbedBuilder()
           .setDescription("A song must be playing first.")
           .setColor(config.commands.colors.warn),
       ],
