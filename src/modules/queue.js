@@ -1,7 +1,7 @@
 // SimpleMusic Module
 
 const { QueueRepeatMode } = require("discord-player");
-const { MessageEmbed } = require("discord.js");
+const { EmbedBuilder, EmbedFooterData, InteractionType, ApplicationCommandOptionType } = require("discord.js");
 const config = require("../../config");
 const { Player } = require("../index");
 
@@ -13,11 +13,11 @@ exports.meta = {
     {
       name: "list",
       description: "List all upcomming songs in the queue.",
-      type: "SUB_COMMAND",
+      type: ApplicationCommandOptionType.Subcommand,
       options: [
         {
           name: "page",
-          type: "INTEGER",
+          type: ApplicationCommandOptionType.Integer,
           description: "The page of queue items to show.",
           required: false,
         },
@@ -26,11 +26,11 @@ exports.meta = {
     {
       name: "delete",
       description: "Deletes a item from the queue",
-      type: "SUB_COMMAND",
+      type: ApplicationCommandOptionType.Subcommand,
       options: [
         {
           name: "item",
-          type: "INTEGER",
+          type: ApplicationCommandOptionType.Integer,
           description: "The items position number in the queue to remove.",
           required: true,
         },
@@ -40,12 +40,12 @@ exports.meta = {
 };
 
 exports.interactionCreate = async (interaction) => {
-  if (!interaction.isCommand() || !interaction.guildId) return;
+  if (!interaction.type === InteractionType.ApplicationCommand || !interaction.guildId) return;
   if (interaction.commandName !== this.meta.name) return;
   if (config.commands.whitelist.enabled && !config.commands.whitelist.guilds[interaction.guildId]) {
     return await interaction.reply({
       embeds: [
-        new MessageEmbed()
+        new EmbedBuilder()
           .setDescription("This server is not whitelisted in the config.")
           .setColor(config.commands.colors.error),
       ],
@@ -60,7 +60,7 @@ exports.interactionCreate = async (interaction) => {
       if (pageNumber < 0 && arrayChunks.length < pageNumber) {
         return interaction.reply({
           embeds: [
-            new MessageEmbed()
+            new EmbedBuilder()
               .setDescription("That page number doesn't exist.")
               .setColor(config.commands.colors.warn),
           ],
@@ -69,10 +69,10 @@ exports.interactionCreate = async (interaction) => {
       const currentTrack = await queueData.nowPlaying();
       interaction.reply({
         embeds: [
-          new MessageEmbed()
+          new EmbedBuilder()
             .setTitle(`Queue for #${queueData.connection.channel.name}${queueData.repeatMode === QueueRepeatMode.QUEUE ? "| 🔁" : ""}`)
             .setDescription(((currentTrack && pageNumber === 0) ? `*Currently:* **[${currentTrack.title}](${currentTrack.url})** | Requested by: <@${currentTrack.requestedBy.id}>\n` : "") + arrayChunks[pageNumber].map((track, index) => `*${(pageNumber * 10) + (index + 1)}:* **[${track.title}](${track.url})** | Requested by: <@${track.requestedBy.id}>`).join("\n"))
-            .setFooter(`${queueData.tracks.length} song${queueData.tracks.length !== 1 ? "s" : ""} in queue • Page ${pageNumber + 1} of ${arrayChunks.length}`)
+            .setFooter({text:`${queueData.tracks.length} song${queueData.tracks.length !== 1 ? "s" : ""} in queue • Page ${pageNumber + 1} of ${arrayChunks.length}`, iconURL: null})
             .setColor(config.commands.colors.ok),
         ],
         ephemeral: true,
@@ -81,17 +81,17 @@ exports.interactionCreate = async (interaction) => {
       const currentTrack = await queueData.nowPlaying();
       interaction.reply({
         embeds: [
-          new MessageEmbed()
+          new EmbedBuilder()
             .setTitle(`Queue for #${queueData.connection.channel.name}`)
             .setDescription(`*Now:* **[${currentTrack.title}](${currentTrack.url})** | Requested by: <@${currentTrack.requestedBy.id}>`)
-            .setFooter(queueData.repeatMode === QueueRepeatMode.QUEUE ? "* Queue is looping!" : "")
+            .setFooter({text: queueData.repeatMode === QueueRepeatMode.QUEUE ? `* Queue is looping!` : null, iconURL: null})
             .setColor(config.commands.colors.ok),
         ],
       });
     } else {
       interaction.reply({
         embeds: [
-          new MessageEmbed()
+          new EmbedBuilder()
             .setDescription("The queue is empty.")
             .setColor(config.commands.colors.ok),
         ],
@@ -104,7 +104,7 @@ exports.interactionCreate = async (interaction) => {
     if (config.commands.whitelist.enabled && guildConfig.MusicAccess.length > 0 && interaction.member.roles.cache.find((role) => [...guildConfig.MusicAccess].includes(role.id)) === undefined) {
       return await interaction.reply({
         embeds: [
-          new MessageEmbed()
+          new EmbedBuilder()
             .setDescription("Sorry, but you don't have permission to use this command.")
             .setColor(config.commands.colors.error),
         ],
@@ -119,7 +119,7 @@ exports.interactionCreate = async (interaction) => {
         queueData.remove(posNumber - 1);
         await interaction.reply({
           embeds: [
-            new MessageEmbed()
+            new EmbedBuilder()
               .setDescription(`Removed [${track.title}](${track.url}) from the queue.`)
               .setColor(config.commands.colors.ok),
           ],
@@ -127,7 +127,7 @@ exports.interactionCreate = async (interaction) => {
       } else {
         await interaction.reply({
           embeds: [
-            new MessageEmbed()
+            new EmbedBuilder()
               .setDescription("That queue position is not in our queue range.")
               .setColor(config.commands.colors.warn),
           ],
@@ -137,7 +137,7 @@ exports.interactionCreate = async (interaction) => {
     } else {
       interaction.reply({
         embeds: [
-          new MessageEmbed()
+          new EmbedBuilder()
             .setDescription("Queue is empty.")
             .setColor(config.commands.colors.ok),
         ],

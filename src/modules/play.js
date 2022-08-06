@@ -1,6 +1,6 @@
 // SimpleMusic Module
 
-const { MessageEmbed } = require("discord.js");
+const { EmbedBuilder, InteractionType, ApplicationCommandOptionType } = require("discord.js");
 const config = require("../../config");
 const { Player } = require("../index");
 const { QueryType } = require("discord-player");
@@ -12,7 +12,7 @@ exports.meta = {
   options: [
     {
       name: "song",
-      type: "STRING",
+      type: ApplicationCommandOptionType.String,
       description: "A search term or a YouTube/SoundCloud/Spotify URL.",
       required: true,
     },
@@ -20,12 +20,12 @@ exports.meta = {
 };
 
 exports.interactionCreate = async (interaction) => {
-  if (!interaction.isCommand() || !interaction.guildId) return;
+  if (!interaction.type === InteractionType.ApplicationCommand || !interaction.guildId) return;
   if (interaction.commandName !== this.meta.name) return;
   if (config.commands.whitelist.enabled && !config.commands.whitelist.guilds[interaction.guildId]) {
     return await interaction.reply({
       embeds: [
-        new MessageEmbed()
+        new EmbedBuilder()
           .setDescription("This server is not whitelisted in the config.")
           .setColor(config.commands.colors.error),
       ],
@@ -35,7 +35,7 @@ exports.interactionCreate = async (interaction) => {
   if (config.commands.whitelist.enabled && guildConfig.MusicAccess.length > 0 && interaction.member.roles.cache.find((role) => [...guildConfig.MusicAccess].includes(role.id)) === undefined) {
     return await interaction.reply({
       embeds: [
-        new MessageEmbed()
+        new EmbedBuilder()
           .setDescription("Sorry, but you don't have permission to use this command.")
           .setColor(config.commands.colors.error),
       ],
@@ -46,17 +46,17 @@ exports.interactionCreate = async (interaction) => {
   if (!interaction.member.voice.channelId) {
     return await interaction.reply({
       embeds: [
-        new MessageEmbed()
+        new EmbedBuilder()
           .setDescription("You need to be in a voice channel first.")
           .setColor(config.commands.colors.warn),
       ],
       ephemeral: true,
     });
   }
-  if (interaction.guild.me.voice.channelId && interaction.member.voice.channelId !== interaction.guild.me.voice.channelId) {
+  if (interaction.guild.members.me.voice.channelId && interaction.member.voice.channelId !== interaction.guild.members.me.voice.channelId) {
     return await interaction.reply({
       embeds: [
-        new MessageEmbed()
+        new EmbedBuilder()
           .setDescription("Sorry, I'm already playing music for another voice channel.")
           .setColor(config.commands.colors.warn),
       ],
@@ -77,7 +77,7 @@ exports.interactionCreate = async (interaction) => {
     queue.destroy();
     return await interaction.followUp({
       embeds: [
-        new MessageEmbed()
+        new EmbedBuilder()
           .setDescription("Failed to join voice channel!")
           .setColor(config.commands.colors.error),
       ],
@@ -94,7 +94,7 @@ exports.interactionCreate = async (interaction) => {
   if (!searchResults || !searchResults.tracks.length) {
     return await interaction.followUp({
       embeds: [
-        new MessageEmbed()
+        new EmbedBuilder()
           .setDescription(`No results or valid length of songs were found when searching for \`${query}\``)
           .setColor(config.commands.colors.warn),
       ],
@@ -105,7 +105,7 @@ exports.interactionCreate = async (interaction) => {
     queue.addTracks(searchResults.tracks);
     await interaction.followUp({
       embeds: [
-        new MessageEmbed()
+        new EmbedBuilder()
           .setDescription(`Added **${searchResults.tracks.length} song${searchResults.tracks.length !== 1 ? "s" : ""}** to the queue!\n*via ${searchResults.tracks[0].source}*`)
           .setThumbnail(searchResults.thumbnail)
           .setColor(config.commands.colors.ok),
@@ -116,7 +116,7 @@ exports.interactionCreate = async (interaction) => {
     queue.addTrack(song);
     await interaction.followUp({
       embeds: [
-        new MessageEmbed()
+        new EmbedBuilder()
           .setDescription(`Added to queue!\n[${song.title}](${song.url})\n*via ${song.source}*`)
           .setThumbnail(song.thumbnail)
           .setColor(config.commands.colors.ok),

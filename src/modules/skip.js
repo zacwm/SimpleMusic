@@ -1,6 +1,6 @@
 // SimpleMusic Module
 
-const { MessageEmbed } = require("discord.js");
+const { EmbedBuilder, InteractionType } = require("discord.js");
 const config = require("../../config");
 const { Player, VoteSkips } = require("../index");
 
@@ -11,12 +11,12 @@ exports.meta = {
 };
 
 exports.interactionCreate = async (interaction) => {
-  if (!interaction.isCommand() || !interaction.guildId) return;
+  if (!interaction.type === InteractionType.ApplicationCommand || !interaction.guildId) return;
   if (interaction.commandName !== this.meta.name) return;
   if (config.commands.whitelist.enabled && !config.commands.whitelist.guilds[interaction.guildId]) {
     return await interaction.reply({
       embeds: [
-        new MessageEmbed()
+        new EmbedBuilder()
           .setDescription("This server is not whitelisted in the config.")
           .setColor(config.commands.colors.error),
       ],
@@ -26,7 +26,7 @@ exports.interactionCreate = async (interaction) => {
   if (config.commands.whitelist.enabled && guildConfig.MusicAccess.length > 0 && interaction.member.roles.cache.find((role) => [...guildConfig.MusicAccess].includes(role.id)) === undefined) {
     return await interaction.reply({
       embeds: [
-        new MessageEmbed()
+        new EmbedBuilder()
           .setDescription("Sorry, but you don't have permission to use this command.")
           .setColor(config.commands.colors.error),
       ],
@@ -37,17 +37,17 @@ exports.interactionCreate = async (interaction) => {
   if (!interaction.member.voice.channelId) {
     return await interaction.reply({
       embeds: [
-        new MessageEmbed()
+        new EmbedBuilder()
           .setDescription("You're not in a voice channel.")
           .setColor(config.commands.colors.warn),
       ],
       ephemeral: true,
     });
   }
-  if (interaction.guild.me.voice.channelId && interaction.member.voice.channelId !== interaction.guild.me.voice.channelId) {
+  if (interaction.guild.members.me.voice.channelId && interaction.member.voice.channelId !== interaction.guild.members.me.voice.channelId) {
     return await interaction.reply({
       embeds: [
-        new MessageEmbed()
+        new EmbedBuilder()
           .setDescription("Sorry, I'm already playing for another voice channel.")
           .setColor(config.commands.colors.warn),
       ],
@@ -63,7 +63,7 @@ exports.interactionCreate = async (interaction) => {
       delete VoteSkips[interaction.guildId];
       interaction.followUp({
         embeds: [
-          new MessageEmbed()
+          new EmbedBuilder()
             .setDescription("**Skipped...**")
             .setColor(config.commands.colors.ok),
         ],
@@ -74,7 +74,7 @@ exports.interactionCreate = async (interaction) => {
     if (VoteSkips[interaction.guildId].has(interaction.member.id)) {
       return interaction.followUp({
         embeds: [
-          new MessageEmbed()
+          new EmbedBuilder()
             .setDescription("Your skip vote has already been placed.\n" +
             `${(typeof guildConfig.SkipVoting === "string") ? `At ${Math.floor((VoteSkips[interaction.guildId].size / queueData.connection.channel.members.size) * 100)}% of ${parseInt(guildConfig.SkipVoting)}% members in call required.` : ""}` +
             `${(typeof guildConfig.SkipVoting === "number" && guildConfig.SkipVoting > 0) ? `At ${VoteSkips[interaction.guildId].size} of ${guildConfig.SkipVoting} members required.` : ""}`)
@@ -87,7 +87,7 @@ exports.interactionCreate = async (interaction) => {
       // Never skipping
       return interaction.followUp({
         embeds: [
-          new MessageEmbed()
+          new EmbedBuilder()
             .setDescription("Skipping is disabled in this server.")
             .setColor(config.commands.colors.error),
         ],
@@ -106,7 +106,7 @@ exports.interactionCreate = async (interaction) => {
       VoteSkips[interaction.guildId].set(interaction.member.id);
       return interaction.followUp({
         embeds: [
-          new MessageEmbed()
+          new EmbedBuilder()
             .setDescription("Your skip vote has been placed.\n" +
               `${(typeof guildConfig.SkipVoting === "string") ? `At ${Math.floor((VoteSkips[interaction.guildId].size / queueData.connection.channel.members.size) * 100)}% of ${parseInt(guildConfig.SkipVoting)}% members in call required.` : ""}` +
               `${(typeof guildConfig.SkipVoting === "number" && guildConfig.SkipVoting > 0) ? `At ${VoteSkips[interaction.guildId].size} of ${guildConfig.SkipVoting} members required.` : ""}`)
@@ -117,7 +117,7 @@ exports.interactionCreate = async (interaction) => {
   } else {
     interaction.followUp({
       embeds: [
-        new MessageEmbed()
+        new EmbedBuilder()
           .setDescription("There is no song playing to skip.")
           .setColor(config.commands.colors.warn),
       ],
